@@ -1,0 +1,8 @@
+import './globals.css'
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = { title: 'Linkup', description: 'Everything your crew does, in one place.' }
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return <html lang="en"><body>{children}</body></html>
+}

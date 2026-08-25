@@ -29,47 +29,54 @@ export default function AuthPage() {
           : { email, password }),
       })
       const data = await response.json().catch(() => ({}))
-      if (!response.ok) throw new Error(data.error || "Something went wrong")
+      if (!response.ok) throw new Error(data.error || "Couldn’t sign you in")
 
       if (mode === "signup" && !data.session) {
-        setMessage("Account created. Check your email to confirm it, then come back and log in.")
+        setMessage("You’re in. Check your email when you get a minute, then log in here after you confirm it.")
       } else {
-        window.location.href = "/"
+        window.location.href = "/dashboard"
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong")
+      setError(err instanceof Error ? err.message : "Couldn’t sign you in")
     } finally {
       setBusy(false)
     }
   }
 
   return (
-    <main className="min-h-screen bg-[#fafaf8] text-[#111]">
-      <div className="mx-auto grid min-h-screen max-w-6xl lg:grid-cols-[1fr_.9fr]">
-        <section className="relative hidden overflow-hidden border-r-2 border-[#1a1a1a] bg-brand-blue p-10 lg:flex lg:flex-col lg:justify-between">
-          <div className="relative z-10">
+    <main className="min-h-screen overflow-hidden bg-[#fafaf8] text-[#111]">
+      <div className="mx-auto grid min-h-screen max-w-[1600px] lg:grid-cols-[1.2fr_.8fr]">
+        <section className="relative hidden overflow-hidden border-r-2 border-[#1a1a1a] bg-brand-blue p-10 lg:block lg:p-14 xl:p-16">
+          <div className="relative z-10 flex items-center gap-3">
             <Link href="/" className="inline-flex items-center gap-3">
               <div className="grid h-11 w-11 place-items-center rounded-lg border-2 border-[#1a1a1a] bg-white text-lg font-black shadow-[4px_4px_0_#1a1a1a]">L</div>
               <span className="text-2xl font-black tracking-tight">linkup</span>
             </Link>
-
-            <div className="mt-24 max-w-xl">
-              <div className="mb-5 inline-flex items-center gap-2 rounded-full border-2 border-[#1a1a1a] bg-brand-mint px-3 py-1 text-[11px] font-black shadow-[2px_2px_0_#1a1a1a]">
-                <Sparkles size={13} /> YOUR CREW, TOGETHER
-              </div>
-              <h1 className="text-6xl font-black leading-[.96] tracking-tight">Make plans.<br />Actually make them happen.</h1>
-              <p className="mt-6 max-w-lg text-base font-semibold leading-7 text-zinc-700">Events, ideas, money and memories in one place. No spreadsheet archaeology required.</p>
-            </div>
           </div>
 
-          <div className="relative z-10 grid gap-3 sm:grid-cols-2">
+          <div className="relative z-10 mt-20 max-w-3xl xl:mt-24">
+            <div className="mb-5 inline-flex items-center gap-2 rounded-full border-2 border-[#1a1a1a] bg-brand-mint px-3 py-1.5 text-[11px] font-black shadow-[2px_2px_0_#1a1a1a]"><Sparkles size={13}/> MADE FOR THE GROUP CHAT</div>
+            <h1 className="max-w-3xl text-[clamp(4rem,7vw,7rem)] font-black leading-[.88] tracking-[-.05em]">Plans in.<br/>Chaos out.</h1>
+            <p className="mt-7 max-w-2xl text-lg font-semibold leading-8 text-zinc-700">One place for the next thing, who’s coming, who paid, and where the photos ended up.</p>
+          </div>
+
+          <div className="auth-orbit pointer-events-none absolute inset-0">
+            <div className="orbit-card orbit-one">8 people<br/><b>are in</b></div>
+            <div className="orbit-card orbit-two">$31<br/><b>coming back to you</b></div>
+            <div className="orbit-card orbit-three">12 ideas<br/><b>to vote on</b></div>
+            <div className="orbit-card orbit-four">214 photos<br/><b>saved together</b></div>
+          </div>
+
+          <div className="relative z-10 mt-20 grid max-w-3xl gap-3 sm:grid-cols-2 xl:grid-cols-4">
             {[
-              [Users, "One shared crew", "Invite everyone in one link."],
-              [KeyRound, "Private by default", "Your group stays your group."],
+              [Users, "One crew", "Invite everyone once."],
+              [KeyRound, "Private", "Only your group sees it."],
+              [Sparkles, "Fast", "Make a plan in a minute."],
+              [Check, "Useful", "Everything stays together."],
             ].map(([Icon, title, desc]) => {
               const I = Icon as typeof Users
-              return <div key={title as string} className="brutal-card bg-white/95 p-4">
-                <div className="grid h-9 w-9 place-items-center rounded-lg border-2 border-[#1a1a1a] bg-brand-lemon"><I size={16} /></div>
+              return <div key={title as string} className="brutal-card bg-white/92 p-4 backdrop-blur">
+                <div className="grid h-9 w-9 place-items-center rounded-lg border-2 border-[#1a1a1a] bg-brand-lemon"><I size={16}/></div>
                 <div className="mt-3 text-sm font-black">{title as string}</div>
                 <div className="mt-1 text-xs font-medium text-zinc-500">{desc as string}</div>
               </div>
@@ -77,62 +84,64 @@ export default function AuthPage() {
           </div>
         </section>
 
-        <section className="flex items-center justify-center p-5 sm:p-8">
-          <div className="w-full max-w-md">
-            <div className="mb-6 lg:hidden">
+        <section className="flex items-center justify-center px-5 py-10 sm:px-8 lg:px-12 xl:px-20">
+          <div className="w-full max-w-xl">
+            <div className="mb-8 lg:hidden">
               <Link href="/" className="inline-flex items-center gap-3">
                 <div className="grid h-10 w-10 place-items-center rounded-lg border-2 border-[#1a1a1a] bg-brand-blue text-lg font-black shadow-[4px_4px_0_#1a1a1a]">L</div>
                 <span className="text-xl font-black">linkup</span>
               </Link>
             </div>
 
-            <div className="mb-7">
-              <div className="text-[10px] font-black tracking-[.16em] text-zinc-500">WELCOME TO LINKUP</div>
-              <h2 className="mt-2 text-4xl font-black tracking-tight">{mode === "signup" ? "Create your crew account." : "Welcome back."}</h2>
-              <p className="mt-2 text-sm font-medium leading-6 text-zinc-500">{mode === "signup" ? "Get your group out of the group chat and into one place." : "Pick up where your crew left off."}</p>
+            <div className="mb-8">
+              <div className="text-[10px] font-black tracking-[.18em] text-zinc-500">{mode === "signup" ? "FIRST TIME HERE" : "GOOD TO SEE YOU"}</div>
+              <h2 className="mt-2 text-4xl font-black tracking-tight sm:text-5xl">{mode === "signup" ? "Make the account." : "Pick it back up."}</h2>
+              <p className="mt-3 max-w-lg text-sm font-medium leading-6 text-zinc-500">{mode === "signup" ? "Takes about a minute. Your friends can join after." : "Use the same email and password you signed up with."}</p>
             </div>
 
-            <div className="mb-6 grid grid-cols-2 rounded-xl border-2 border-[#1a1a1a] bg-white p-1 shadow-[3px_3px_0_#1a1a1a]">
-              <button onClick={() => { setMode("signup"); setMessage(""); setError("") }} className={`rounded-lg px-4 py-2.5 text-sm font-black transition ${mode === "signup" ? "bg-[#111] text-white" : "text-zinc-500"}`}>Create account</button>
-              <button onClick={() => { setMode("login"); setMessage(""); setError("") }} className={`rounded-lg px-4 py-2.5 text-sm font-black transition ${mode === "login" ? "bg-[#111] text-white" : "text-zinc-500"}`}>Log in</button>
+            <div className="mb-6 flex gap-2">
+              <button onClick={() => { setMode("signup"); setMessage(""); setError("") }} className={`rounded-full border-2 border-[#1a1a1a] px-4 py-2 text-sm font-black transition ${mode === "signup" ? "bg-[#111] text-white shadow-[3px_3px_0_#1a1a1a]" : "bg-white text-zinc-500"}`}>Create account</button>
+              <button onClick={() => { setMode("login"); setMessage(""); setError("") }} className={`rounded-full border-2 border-[#1a1a1a] px-4 py-2 text-sm font-black transition ${mode === "login" ? "bg-[#111] text-white shadow-[3px_3px_0_#1a1a1a]" : "bg-white text-zinc-500"}`}>Log in</button>
             </div>
 
-            <form onSubmit={submit} className="brutal-card p-5 sm:p-6">
-              {mode === "signup" && <label className="block">
-                <span className="text-xs font-black">Your name</span>
-                <input value={name} onChange={(e) => setName(e.target.value)} required className="brutal-input mt-2 w-full rounded-lg px-4 py-3 text-sm outline-none focus:shadow-[3px_3px_0_#93cdff]" placeholder="Rishi" autoComplete="name" />
+            <form onSubmit={submit} className="brutal-card relative overflow-hidden p-5 sm:p-7">
+              <div className="absolute right-0 top-0 h-32 w-32 rounded-full bg-brand-blue/40 blur-3xl" />
+              {mode === "signup" && <label className="relative block">
+                <span className="text-xs font-black">Name</span>
+                <input value={name} onChange={(e) => setName(e.target.value)} required className="brutal-input mt-2 w-full rounded-lg px-4 py-3.5 text-sm outline-none focus:shadow-[3px_3px_0_#93cdff]" placeholder="Your name" autoComplete="name" />
               </label>}
 
-              <label className={`block ${mode === "signup" ? "mt-4" : ""}`}>
+              <label className={`relative block ${mode === "signup" ? "mt-4" : ""}`}>
                 <span className="text-xs font-black">Email</span>
-                <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" required className="brutal-input mt-2 w-full rounded-lg px-4 py-3 text-sm outline-none focus:shadow-[3px_3px_0_#93cdff]" placeholder="you@example.com" autoComplete="email" />
+                <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" required className="brutal-input mt-2 w-full rounded-lg px-4 py-3.5 text-sm outline-none focus:shadow-[3px_3px_0_#93cdff]" placeholder="you@example.com" autoComplete="email" />
               </label>
 
-              <label className="mt-4 block">
+              <label className="relative mt-4 block">
                 <span className="text-xs font-black">Password</span>
                 <div className="relative mt-2">
-                  <input value={password} onChange={(e) => setPassword(e.target.value)} type={showPassword ? "text" : "password"} required minLength={6} className="brutal-input w-full rounded-lg px-4 py-3 pr-12 text-sm outline-none focus:shadow-[3px_3px_0_#93cdff]" placeholder="At least 6 characters" autoComplete={mode === "signup" ? "new-password" : "current-password"} />
+                  <input value={password} onChange={(e) => setPassword(e.target.value)} type={showPassword ? "text" : "password"} required minLength={6} className="brutal-input w-full rounded-lg px-4 py-3.5 pr-12 text-sm outline-none focus:shadow-[3px_3px_0_#93cdff]" placeholder="At least 6 characters" autoComplete={mode === "signup" ? "new-password" : "current-password"} />
                   <button type="button" onClick={() => setShowPassword((v) => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500" aria-label="Toggle password visibility">
-                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                    {showPassword ? <EyeOff size={16}/> : <Eye size={16}/>} 
                   </button>
                 </div>
               </label>
 
-              {mode === "signup" && <div className="mt-4 grid gap-2 rounded-xl bg-brand-cream p-3 text-[11px] font-semibold text-zinc-600">
-                <div className="flex items-center gap-2"><Check size={14} /> Your crew can invite you after signup.</div>
-                <div className="flex items-center gap-2"><Check size={14} /> You can create groups and events after logging in.</div>
+              {mode === "signup" && <div className="relative mt-4 grid gap-2 rounded-xl bg-brand-cream p-3 text-[11px] font-semibold text-zinc-600">
+                <div className="flex items-center gap-2"><Check size={14}/> We’ll send a confirmation email.</div>
+                <div className="flex items-center gap-2"><Check size={14}/> You can get started right away when a session is available.</div>
               </div>}
 
-              {error && <div className="mt-4 rounded-lg border-2 border-[#1a1a1a] bg-brand-coral px-3 py-2 text-xs font-bold">{error}</div>}
-              {message && <div className="mt-4 rounded-lg border-2 border-[#1a1a1a] bg-brand-mint px-3 py-2 text-xs font-bold">{message}</div>}
+              {error && <div className="relative mt-4 rounded-lg border-2 border-[#1a1a1a] bg-brand-coral px-3 py-2.5 text-xs font-bold">{error}</div>}
+              {message && <div className="relative mt-4 rounded-lg border-2 border-[#1a1a1a] bg-brand-mint px-3 py-2.5 text-xs font-bold">{message}</div>}
 
-              <button disabled={busy} className="brutal-btn mt-5 w-full justify-center rounded-lg bg-brand-blue px-4 py-3.5 text-sm disabled:cursor-not-allowed disabled:opacity-60">
-                {busy ? "One sec…" : mode === "signup" ? "Create my account" : "Log me in"}
-                <ArrowRight size={16} />
+              <button disabled={busy} className="brutal-btn relative mt-5 w-full justify-center rounded-lg bg-brand-blue px-4 py-3.5 text-sm disabled:cursor-not-allowed disabled:opacity-60">
+                {busy ? "Opening Linkup…" : mode === "signup" ? "Get started" : "Log in"}
+                <ArrowRight size={16}/>
               </button>
             </form>
 
-            <Link href="/" className="mt-5 inline-flex items-center gap-2 text-xs font-black text-zinc-500 hover:text-black">← Back to Linkup</Link>
+            <p className="mt-5 text-xs font-medium leading-5 text-zinc-500">By continuing, you’re making a shared space for your group. No corporate seminar required.</p>
+            <Link href="/" className="mt-4 inline-flex items-center gap-2 text-xs font-black text-zinc-500 hover:text-black">← Back</Link>
           </div>
         </section>
       </div>

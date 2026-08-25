@@ -1,25 +1,22 @@
-import { ArrowUpRight, CircleDollarSign, Plus, ReceiptText, WalletCards } from 'lucide-react'
+"use client"
+
+import { FormEvent, useEffect, useState } from 'react'
+import { ArrowUpRight, CircleDollarSign, Plus, ReceiptText, WalletCards, X } from 'lucide-react'
 import DashboardShell from '../_components/shell'
 
-const expenses = [
-  ['Camping groceries', '$68.00', 'Rishi paid', 'Fall Camping'],
-  ['Movie tickets', '$75.00', 'Sam paid', 'Movie + Dinner'],
-  ['Gas', '$42.50', 'Ava paid', 'Santa Cruz Beach Day'],
-]
+type Expense={id:string;description:string;amount:number;currency:string;paid_by:string;event_id?:string|null}
+type GroupRow={group_id:string;groups:{name:string}|null}
 
-export default function ExpensesPage() {
-  return <DashboardShell title="Expenses" eyebrow="KEEP THE MONEY FAIR">
-    <div className="grid gap-4 sm:grid-cols-3 mb-6">
-      <div className="brutal-card bg-brand-coral p-5"><div className="text-xs font-bold text-zinc-600">You owe</div><div className="mt-2 text-3xl font-black">$12.50</div><div className="mt-1 text-xs text-zinc-500">to Alex</div></div>
-      <div className="brutal-card bg-brand-mint p-5"><div className="text-xs font-bold text-zinc-600">Owed to you</div><div className="mt-2 text-3xl font-black">$31.00</div><div className="mt-1 text-xs text-zinc-500">from 2 people</div></div>
-      <button className="brutal-card bg-brand-blue p-5 text-left"><Plus size={18}/><div className="mt-4 text-lg font-black">Add expense</div><div className="mt-1 text-xs text-zinc-600">Log who paid for what.</div></button>
-    </div>
-    <div className="brutal-card overflow-hidden">
-      <div className="border-b-2 border-[#1a1a1a] p-5"><div className="text-[10px] font-black tracking-[.14em] text-zinc-500">RECENT EXPENSES</div><h2 className="mt-1 text-2xl font-black">Shared spending</h2></div>
-      <div className="divide-y-2 divide-zinc-100">
-        {expenses.map(([name, amount, paid, event]) => <div key={name} className="flex items-center gap-4 p-5"><div className="grid h-10 w-10 shrink-0 place-items-center rounded-lg border-2 border-[#1a1a1a] bg-white"><ReceiptText size={17}/></div><div className="min-w-0 flex-1"><div className="text-sm font-black">{name}</div><div className="mt-1 text-xs text-zinc-500">{paid} · {event}</div></div><div className="text-right"><div className="text-sm font-black">{amount}</div><div className="mt-1 inline-flex items-center gap-1 text-[10px] font-bold text-zinc-500"><WalletCards size={12}/> shared</div></div><ArrowUpRight size={16} className="text-zinc-400"/></div>)}
-      </div>
-    </div>
-    <p className="mt-5 text-xs font-medium text-zinc-500">Splitwise sync will plug into this page later. The page is already shaped around the same group expense model.</p>
-  </DashboardShell>
+export default function ExpensesPage(){
+ const [expenses,setExpenses]=useState<Expense[]>([]);const [groups,setGroups]=useState<GroupRow[]>([]);const [open,setOpen]=useState(false);const [busy,setBusy]=useState(false);const [error,setError]=useState('');const [form,setForm]=useState({description:'',amount:''})
+ async function load(){const[g,e]=await Promise.all([fetch('/api/groups'),fetch('/api/expenses')]);const gd=await g.json().catch(()=>({}));const ed=await e.json().catch(()=>({}));if(g.ok)setGroups(gd.groups||[]);if(e.ok)setExpenses(ed.expenses||[])}
+ useEffect(()=>{load().catch(()=>{})},[])
+ async function addExpense(e:FormEvent){e.preventDefault();setBusy(true);setError('');const groupId=groups[0]?.group_id;if(!groupId){setError('Create a crew first.');setBusy(false);return}const r=await fetch('/api/expenses',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({groupId,description:form.description,amount:Number(form.amount)})});const d=await r.json().catch(()=>({}));if(!r.ok)setError(d.error||'Could not add expense');else{setExpenses([d.expense,...expenses]);setForm({description:'',amount:''});setOpen(false)}setBusy(false)}
+ const total=expenses.reduce((sum,e)=>sum+Number(e.amount),0)
+ return <DashboardShell title="Expenses" eyebrow="KEEP THE MONEY FAIR">
+  <div className="grid gap-4 sm:grid-cols-3 mb-6"><div className="brutal-card bg-brand-coral p-5"><div className="text-xs font-bold text-zinc-600">Logged spending</div><div className="mt-2 text-3xl font-black">${total.toFixed(2)}</div><div className="mt-1 text-xs text-zinc-500">{expenses.length} expense{expenses.length===1?'':'s'}</div></div><div className="brutal-card bg-brand-mint p-5"><div className="text-xs font-bold text-zinc-600">You owe</div><div className="mt-2 text-3xl font-black">Calculated next</div><div className="mt-1 text-xs text-zinc-500">Splitwise-ready structure</div></div><button onClick={()=>setOpen(true)} className="brutal-card bg-brand-blue p-5 text-left hover:-translate-y-0.5"><Plus size={18}/><div className="mt-4 text-lg font-black">Add expense</div><div className="mt-1 text-xs text-zinc-600">Log who paid for what.</div></button></div>
+  {open&&<div className="mb-6 brutal-card p-5"><div className="mb-4 flex items-center justify-between"><h2 className="text-xl font-black">New expense</h2><button onClick={()=>setOpen(false)}><X size={18}/></button></div><form onSubmit={addExpense} className="grid gap-3 sm:grid-cols-2"><input className="brutal-input rounded-lg px-3 py-3 text-sm" placeholder="What was it?" required value={form.description} onChange={e=>setForm({...form,description:e.target.value})}/><input className="brutal-input rounded-lg px-3 py-3 text-sm" placeholder="Amount" type="number" min="0.01" step="0.01" required value={form.amount} onChange={e=>setForm({...form,amount:e.target.value})}/>{error&&<div className="rounded-lg border-2 border-[#1a1a1a] bg-brand-coral px-3 py-2 text-xs font-bold sm:col-span-2">{error}</div>}<button disabled={busy} className="brutal-btn justify-center rounded-lg bg-brand-mint px-4 py-3 text-sm sm:col-span-2">{busy?'Saving…':'Save expense'}<WalletCards size={16}/></button></form></div>}
+  <div className="brutal-card overflow-hidden"><div className="border-b-2 border-[#1a1a1a] p-5"><div className="text-[10px] font-black tracking-[.14em] text-zinc-500">RECENT</div><h2 className="mt-1 text-2xl font-black">Shared spending</h2></div>{expenses.length===0?<div className="p-10 text-center text-sm text-zinc-500">No expenses yet. Add the first one.</div>:<div className="divide-y-2 divide-zinc-100">{expenses.map(e=><div key={e.id} className="flex items-center gap-4 p-5"><div className="grid h-10 w-10 shrink-0 place-items-center rounded-lg border-2 border-[#1a1a1a] bg-white"><ReceiptText size={17}/></div><div className="min-w-0 flex-1"><div className="text-sm font-black">{e.description}</div><div className="mt-1 text-xs text-zinc-500">Paid by you · {e.currency}</div></div><div className="text-right"><div className="text-sm font-black">${Number(e.amount).toFixed(2)}</div><div className="mt-1 inline-flex items-center gap-1 text-[10px] font-bold text-zinc-500"><ArrowUpRight size={12}/> shared</div></div></div>)}</div>}</div>
+  <p className="mt-5 text-xs font-medium text-zinc-400">Once you connect Splitwise, these Linkup expenses can map onto it.</p>
+ </DashboardShell>
 }

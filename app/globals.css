@@ -1,0 +1,35 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@theme inline {
+  --color-brand-blue: #93cdff;
+  --color-brand-peach: #ffd6c0;
+  --color-brand-mint: #b8f0d4;
+  --color-brand-lemon: #fff3b0;
+  --color-brand-coral: #ffb8b8;
+  --color-brand-cream: #fafaf8;
+}
+
+:root{--background:#fafaf8;--foreground:#111;--border:#1a1a1a}
+*{box-sizing:border-box}
+html{background:var(--background)}
+body{margin:0;background:var(--background);color:var(--foreground);font-family:Arial,Helvetica,sans-serif;min-height:100vh}
+button{font:inherit}
+
+.brutal-card{border:2px solid #1a1a1a;box-shadow:4px 4px 0 #1a1a1a;background:#fff;border-radius:14px}
+.brutal-btn{border:2px solid #1a1a1a;box-shadow:4px 4px 0 #1a1a1a;transition:transform 150ms ease,box-shadow 150ms ease;display:inline-flex;align-items:center;gap:8px;font-weight:700;cursor:pointer}
+.brutal-btn:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 #1a1a1a}
+.brutal-btn:active{transform:translate(2px,2px);box-shadow:2px 2px 0 #1a1a1a}
+.brutal-input{border:2px solid #1a1a1a;background:#fff}
+
+.hero-grid{background-image:linear-gradient(rgba(26,26,26,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(26,26,26,.06) 1px,transparent 1px);background-size:40px 40px}
+
+@media (prefers-reduced-motion:no-preference){
+  @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+  .anim-1{animation:fadeUp .45s ease-out .05s both}.anim-2{animation:fadeUp .45s ease-out .15s both}.anim-3{animation:fadeUp .45s ease-out .25s both}.anim-4{animation:fadeUp .45s ease-out .35s both}
+}
+
+@media (max-width: 800px){
+  .desktop-nav{display:none!important}
+  .mobile-nav{display:flex!important}
+}

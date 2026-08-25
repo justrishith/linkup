@@ -25,7 +25,17 @@ export async function GET() {
   })
   const data = await response.json().catch(() => [])
   if (!response.ok) return NextResponse.json({ error: data?.message || 'Unable to load groups' }, { status: response.status })
-  return NextResponse.json({ groups: data })
+
+  const groups = await Promise.all((Array.isArray(data) ? data : []).map(async (row) => {
+    const membersResponse = await fetch(`${supabase.url}/rest/v1/group_members?group_id=eq.${encodeURIComponent(row.group_id)}&select=user_id`, {
+      headers: { apikey: supabase.key, Authorization: `Bearer ${accessToken}` },
+      cache: 'no-store',
+    })
+    const members = await membersResponse.json().catch(() => [])
+    return { ...row, member_count: Array.isArray(members) ? members.length : 0 }
+  }))
+
+  return NextResponse.json({ groups })
 }
 
 export async function POST(request: Request) {
@@ -58,5 +68,5 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: error?.message || 'Unable to add group owner' }, { status: memberResponse.status })
   }
 
-  return NextResponse.json({ group }, { status: 201 })
+  return NextResponse.json({ group, member_count: 1 }, { status: 201 })
 }

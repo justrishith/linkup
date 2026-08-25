@@ -4,7 +4,8 @@ import { supabase } from '@/lib/supabase'
 export async function POST(request: Request) {
   const { email, password } = await request.json()
   const response = await fetch(`${supabase.url}/auth/v1/token?grant_type=password`, {
-    method: 'POST', headers: { apikey: supabase.key, 'Content-Type': 'application/json' },
+    method: 'POST',
+    headers: { apikey: supabase.key, 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, password }),
   })
   const data = await response.json().catch(() => ({}))

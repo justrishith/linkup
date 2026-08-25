@@ -1,6 +1,7 @@
 "use client"
 
 import { FormEvent, useEffect, useState } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { Lightbulb, Plus, ThumbsUp, X } from 'lucide-react'
 import DashboardShell from '../_components/shell'
 
@@ -8,9 +9,10 @@ type Idea = { id:string; title:string; description?:string|null; category?:strin
 type GroupRow = { group_id:string; groups:{name:string}|null }
 
 export default function IdeasPage() {
+  const searchParams = useSearchParams()
   const [ideas, setIdeas] = useState<Idea[]>([])
   const [groups, setGroups] = useState<GroupRow[]>([])
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(searchParams.get('new') === '1')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const [form, setForm] = useState({title:'',description:'',category:''})

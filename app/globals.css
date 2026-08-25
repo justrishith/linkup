@@ -24,12 +24,29 @@ button{font:inherit}
 
 .hero-grid{background-image:linear-gradient(rgba(26,26,26,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(26,26,26,.06) 1px,transparent 1px);background-size:40px 40px}
 
+.auth-orbit{perspective:1200px;transform-style:preserve-3d;overflow:hidden}
+.orbit-card{position:absolute;width:190px;border:2px solid #1a1a1a;border-radius:18px;background:#fff;padding:16px 18px;font-size:13px;line-height:1.35;box-shadow:7px 7px 0 #1a1a1a;transform-style:preserve-3d;will-change:transform}
+.orbit-card b{font-size:16px}
+.orbit-one{left:58%;top:22%;transform:rotate(-8deg) translateZ(80px)}
+.orbit-two{right:6%;top:42%;background:#b8f0d4;transform:rotate(8deg) translateZ(40px)}
+.orbit-three{left:48%;bottom:20%;background:#fff3b0;transform:rotate(5deg) translateZ(110px)}
+.orbit-four{right:14%;bottom:8%;background:#ffd6c0;transform:rotate(-7deg) translateZ(60px)}
 @media (prefers-reduced-motion:no-preference){
+  @keyframes floatOne{0%,100%{transform:rotate(-8deg) translate3d(0,0,80px)}50%{transform:rotate(-4deg) translate3d(12px,-12px,110px)}}
+  @keyframes floatTwo{0%,100%{transform:rotate(8deg) translate3d(0,0,40px)}50%{transform:rotate(13deg) translate3d(-10px,10px,70px)}}
+  @keyframes floatThree{0%,100%{transform:rotate(5deg) translate3d(0,0,110px)}50%{transform:rotate(0deg) translate3d(8px,-8px,140px)}}
+  @keyframes floatFour{0%,100%{transform:rotate(-7deg) translate3d(0,0,60px)}50%{transform:rotate(-12deg) translate3d(-8px,-10px,90px)}}
+  .orbit-one{animation:floatOne 7s ease-in-out infinite}
+  .orbit-two{animation:floatTwo 8s ease-in-out 1s infinite}
+  .orbit-three{animation:floatThree 9s ease-in-out .5s infinite}
+  .orbit-four{animation:floatFour 8.5s ease-in-out 1.5s infinite}
   @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
   .anim-1{animation:fadeUp .45s ease-out .05s both}.anim-2{animation:fadeUp .45s ease-out .15s both}.anim-3{animation:fadeUp .45s ease-out .25s both}.anim-4{animation:fadeUp .45s ease-out .35s both}
 }
 
+@media (max-width: 1024px){.orbit-card{opacity:.85;transform:scale(.88)}}
 @media (max-width: 800px){
   .desktop-nav{display:none!important}
   .mobile-nav{display:flex!important}
 }
+@media (max-width: 640px){.orbit-card{display:none}}

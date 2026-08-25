@@ -2,7 +2,6 @@
 
 import { FormEvent, useEffect, useState } from 'react'
 import Link from 'next/link'
-import { useSearchParams } from 'next/navigation'
 import { CalendarDays, ChevronRight, Plus, Users, X } from 'lucide-react'
 import DashboardShell from '../_components/shell'
 
@@ -10,10 +9,9 @@ type GroupRow = { group_id: string; role: string; groups: { id: string; name: st
 type EventItem = { id: string; name: string; description?: string | null; starts_at?: string | null; ends_at?: string | null; location?: string | null; status: string }
 
 export default function EventsPage() {
-  const searchParams = useSearchParams()
   const [groups, setGroups] = useState<GroupRow[]>([])
   const [events, setEvents] = useState<EventItem[]>([])
-  const [open, setOpen] = useState(searchParams.get('new') === '1')
+  const [open, setOpen] = useState(false)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const [form, setForm] = useState({ name: '', description: '', starts_at: '', ends_at: '', location: '' })
@@ -24,12 +22,17 @@ export default function EventsPage() {
     if (g.ok) setGroups(gd.groups || [])
     if (e.ok) setEvents(ed.events || [])
   }
-  useEffect(() => { load().catch(() => {}) }, [])
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    if (params.get('new') === '1') setOpen(true)
+    load().catch(() => {})
+  }, [])
 
   async function createEvent(event: FormEvent) {
     event.preventDefault(); setBusy(true); setError('')
     const groupId = groups[0]?.group_id
-    if (!groupId) { setError('Create a crew first.'); setBusy(false); return }
+    if (!groupId) { setError('Create a link first.'); setBusy(false); return }
     const response = await fetch('/api/events', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...form, group_id: groupId }) })
     const data = await response.json().catch(() => ({}))
     if (!response.ok) setError(data.error || 'Could not create event')
@@ -39,7 +42,7 @@ export default function EventsPage() {
 
   return <DashboardShell title="Events" eyebrow="PLAN THE NEXT THING">
     <div className="mb-5 flex items-center justify-between gap-3">
-      <div><p className="text-sm font-medium text-zinc-500">Your crew’s plans, with the actual details attached.</p>{groups[0]?.groups?.name && <p className="mt-1 text-[10px] font-black uppercase tracking-[.14em] text-zinc-400">{groups[0].groups.name}</p>}</div>
+      <div><p className="text-sm font-medium text-zinc-500">Your link’s plans, with the actual details attached.</p>{groups[0]?.groups?.name && <p className="mt-1 text-[10px] font-black uppercase tracking-[.14em] text-zinc-400">{groups[0].groups.name}</p>}</div>
       <button onClick={() => setOpen(true)} className="brutal-btn rounded-lg bg-brand-blue px-4 py-3 text-sm"><Plus size={16}/> New event</button>
     </div>
 
@@ -56,7 +59,7 @@ export default function EventsPage() {
       </form>
     </div>}
 
-    {events.length === 0 ? <div className="brutal-card p-10 text-center"><CalendarDays className="mx-auto" size={28}/><h2 className="mt-4 text-2xl font-black">Nothing planned yet.</h2><p className="mt-2 text-sm text-zinc-500">Create the first thing your crew is doing.</p><button onClick={() => setOpen(true)} className="brutal-btn mt-5 rounded-lg bg-brand-blue px-4 py-3 text-sm"><Plus size={16}/> New event</button></div> : <div className="grid gap-4 lg:grid-cols-2">{events.map((event) => <Link key={event.id} href={`/dashboard/events/${event.id}`} className="brutal-card group p-5 sm:p-6">
+    {events.length === 0 ? <div className="brutal-card p-10 text-center"><CalendarDays className="mx-auto" size={28}/><h2 className="mt-4 text-2xl font-black">Nothing planned yet.</h2><p className="mt-2 text-sm text-zinc-500">Create the first thing your link is doing.</p><button onClick={() => setOpen(true)} className="brutal-btn mt-5 rounded-lg bg-brand-blue px-4 py-3 text-sm"><Plus size={16}/> New event</button></div> : <div className="grid gap-4 lg:grid-cols-2">{events.map((event) => <Link key={event.id} href={`/dashboard/events/${event.id}`} className="brutal-card group p-5 sm:p-6">
       <div className="flex items-start gap-4">
         <div className="grid h-14 w-14 shrink-0 place-items-center rounded-xl border-2 border-[#1a1a1a] bg-brand-blue shadow-[3px_3px_0_#1a1a1a]"><CalendarDays size={20}/></div>
         <div className="min-w-0 flex-1"><div className="text-[10px] font-black uppercase tracking-wider text-zinc-500">{event.starts_at ? new Date(event.starts_at).toLocaleString([], { month:'short', day:'numeric', hour:'numeric', minute:'2-digit' }) : 'Date TBD'}</div><h2 className="mt-1 text-xl font-black">{event.name}</h2><p className="mt-1 truncate text-xs font-medium text-zinc-500">{event.location || event.description || 'No details yet'}</p></div>

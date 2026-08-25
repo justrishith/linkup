@@ -2,6 +2,7 @@
 
 import { FormEvent, useEffect, useState } from 'react'
 import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
 import { CalendarDays, ChevronRight, Plus, Users, X } from 'lucide-react'
 import DashboardShell from '../_components/shell'
 
@@ -9,9 +10,10 @@ type GroupRow = { group_id: string; role: string; groups: { id: string; name: st
 type EventItem = { id: string; name: string; description?: string | null; starts_at?: string | null; ends_at?: string | null; location?: string | null; status: string }
 
 export default function EventsPage() {
+  const searchParams = useSearchParams()
   const [groups, setGroups] = useState<GroupRow[]>([])
   const [events, setEvents] = useState<EventItem[]>([])
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(searchParams.get('new') === '1')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const [form, setForm] = useState({ name: '', description: '', starts_at: '', ends_at: '', location: '' })

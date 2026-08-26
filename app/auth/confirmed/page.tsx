@@ -1,11 +1,13 @@
 "use client"
 
 import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { Check, ArrowRight, Loader2 } from 'lucide-react'
 import Link from 'next/link'
 import BrandMark from '../../_components/brand-mark'
 
 export default function ConfirmedPage() {
+  const router = useRouter()
   const [error, setError] = useState('')
   const [working, setWorking] = useState(true)
 
@@ -32,6 +34,7 @@ export default function ConfirmedPage() {
       })
       if (!response.ok) setError('We confirmed your email, but could not finish signing you in.')
       setWorking(false)
+      router.replace('/onboarding')
     }
     finish().catch(() => { setError('We confirmed your email, but could not finish signing you in.'); setWorking(false) })
   }, [])

@@ -30,6 +30,7 @@ button{font:inherit} a{text-decoration:none;color:inherit}
 .link-mark:hover{transform:rotate(-4deg) scale(1.04);box-shadow:4px 4px 0 #1a1a1a}
 .link-mark-near{animation:linkPulse 460ms cubic-bezier(.22,.61,.36,1)}
 .link-mark-near .link-mark-dot{animation:dotWiggle 460ms ease-in-out}
+.link-loader{position:relative;width:76px;height:42px}.link-loader::before,.link-loader::after{content:"";position:absolute;top:8px;width:28px;height:28px;border:3px solid #111;border-radius:11px;background:#93cdff;animation:linkConnect 1.25s ease-in-out infinite}.link-loader::before{left:0}.link-loader::after{right:0;background:#b8f0d4;animation-delay:-.62s}.link-loader-line{position:absolute;left:22px;right:22px;top:21px;height:3px;background:#111;transform-origin:center;animation:linkLine 1.25s ease-in-out infinite}
 
 .logo-mark{display:none}
 .brand-lockup{display:inline-flex;align-items:center;gap:11px}
@@ -79,5 +80,7 @@ button{font:inherit} a{text-decoration:none;color:inherit}
 @keyframes floatFour{0%,100%{transform:rotate(-7deg) translate3d(0,0,60px)}50%{transform:rotate(-12deg) translate3d(-8px,-10px,90px)}}
 @keyframes drift{0%,100%{transform:translate3d(0,0,0)}50%{transform:translate3d(8px,-14px,0)}}
 @keyframes linkFloat{0%,100%{transform:translate3d(0,0,0)}50%{transform:translate3d(-8px,10px,0)}}
+@keyframes linkConnect{0%,100%{transform:rotate(-12deg) translateX(0)}50%{transform:rotate(12deg) translateX(9px)}}
+@keyframes linkLine{0%,100%{transform:scaleX(.25) rotate(-8deg);opacity:.4}50%{transform:scaleX(1) rotate(8deg);opacity:1}}
 }
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}}

@@ -1,4 +1,5 @@
 "use client"
+import GroupsBoard from './groups-board'
 
 import { FormEvent, useEffect, useState } from 'react'
 import { Check, Copy, Link2, Plus, Share2 } from 'lucide-react'
@@ -6,7 +7,9 @@ import DashboardShell from '../_components/shell'
 
 type GroupRow={group_id:string;role:string;groups:{id:string;name:string;description?:string|null}|null}
 
-export default function GroupsPage(){
+export default function GroupsPage(){return <DashboardShell title="Your links" eyebrow="THE PEOPLE YOU PLAN WITH"><GroupsBoard/></DashboardShell>}
+
+function LegacyGroupsPage(){
  const [links,setLinks]=useState<GroupRow[]>([]);const [name,setName]=useState('');const [description,setDescription]=useState('');const [busy,setBusy]=useState(false);const [error,setError]=useState('');const [inviteFor,setInviteFor]=useState('');const [inviteUrl,setInviteUrl]=useState('');const [copied,setCopied]=useState(false)
  async function load(){const r=await fetch('/api/groups');const d=await r.json().catch(()=>({}));if(r.ok)setLinks(d.groups||[])}
  useEffect(()=>{load().catch(()=>{})},[])

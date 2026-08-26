@@ -1,13 +1,12 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
+import { setAuthCookies } from '@/lib/auth-cookies'
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://linkup-vjvg.vercel.app'
-
-export async function POST(request: Request) {
-  const { email, password, displayName } = await request.json()
+export async function POST(request: NextRequest) {
+  const { email, password, displayName } = await request.json().catch(() => ({}))
   if (!email || !password) return NextResponse.json({ error: 'Email and password are required' }, { status: 400 })
 
-  const redirectTo = `${SITE_URL.replace(/\/$/, '')}/auth/confirmed`
+  const redirectTo = new URL('/auth/confirmed', request.nextUrl.origin).toString()
   const response = await fetch(`${supabase.url}/auth/v1/signup?redirect_to=${encodeURIComponent(redirectTo)}`, {
     method: 'POST',
     headers: { apikey: supabase.key, 'Content-Type': 'application/json' },
@@ -21,8 +20,5 @@ export async function POST(request: Request) {
   const data = await response.json().catch(() => ({}))
   if (!response.ok) return NextResponse.json({ error: data.msg || data.message || 'Unable to sign up' }, { status: response.status })
 
-  const out = NextResponse.json({ user: data.user, session: Boolean(data.access_token) })
-  if (data.access_token) out.cookies.set('linkup_access_token', data.access_token, { httpOnly: true, secure: true, sameSite: 'lax', path: '/' })
-  if (data.refresh_token) out.cookies.set('linkup_refresh_token', data.refresh_token, { httpOnly: true, secure: true, sameSite: 'lax', path: '/' })
-  return out
+  return setAuthCookies(NextResponse.json({ user: data.user, session: Boolean(data.access_token) }), data)
 }

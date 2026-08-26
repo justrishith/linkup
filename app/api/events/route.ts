@@ -34,7 +34,7 @@ export async function POST(request: Request) {
     starts_at: body.starts_at || null,
     ends_at: body.ends_at || null,
     location: body.location || null,
-    status: body.status || 'planned',
+    status: body.status || 'planning',
     cover_url: body.cover_url || null,
   }
   const response = await fetch(`${supabase.url}/rest/v1/events`, {

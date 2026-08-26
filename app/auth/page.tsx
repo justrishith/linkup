@@ -40,7 +40,7 @@ export default function AuthPage() {
       const data = await response.json().catch(() => ({}))
       if (!response.ok) throw new Error(data.error || "We could not complete that request.")
       if (mode === "signup" && !data.session) {
-        setMessage(`Check ${email} for the confirmation email. Look in Spam too — then open the Linkup link in this browser.`)
+        setMessage(`Check ${email} for the confirmation email. Look in Spam too. If the link does not bring you back automatically, return here and use Log in.`)
         return
       }
       window.location.assign(mode === "signup" ? "/onboarding" : "/dashboard")

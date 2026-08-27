@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react"
 
-export default function BrandMark({ size = 40 }: { size?: number }) {
+export default function BrandMark({ size = 40, className = "" }: { size?: number; className?: string }) {
   const ref = useRef<HTMLDivElement>(null)
   const [near, setNear] = useState(false)
 
@@ -25,7 +25,7 @@ export default function BrandMark({ size = 40 }: { size?: number }) {
     <div
       ref={ref}
       aria-hidden="true"
-      className={`link-mark ${near ? "link-mark-near" : ""}`}
+      className={`link-mark ${near ? "link-mark-near" : ""} ${className}`}
       style={{ width: size, height: size }}
     >
       <svg viewBox="0 0 40 40" width={Math.round(size * 0.68)} height={Math.round(size * 0.68)} fill="none" xmlns="http://www.w3.org/2000/svg">

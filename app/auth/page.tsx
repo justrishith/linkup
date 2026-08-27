@@ -56,7 +56,7 @@ export default function AuthPage() {
   return <main className="min-h-screen overflow-hidden bg-[#fafaf8] text-[#111]">
     <div className="mx-auto grid min-h-screen max-w-[1600px] lg:grid-cols-[1fr_.9fr]">
       <section className="relative hidden overflow-hidden border-r-2 border-[#1a1a1a] bg-[#111] p-10 text-white lg:block lg:p-14 xl:p-16">
-        <Link href="/welcome" className="relative z-10 inline-flex items-center gap-3"><BrandMark size={44}/><span className="text-2xl font-black tracking-tight">linkup</span></Link>
+        <Link href="/" className="relative z-10 inline-flex items-center gap-3"><BrandMark size={44}/><span className="text-2xl font-black tracking-tight">linkup</span></Link>
         <div className="relative z-10 mt-20 max-w-2xl xl:mt-28">
           <div className="inline-flex items-center gap-2 rounded-full border-2 border-white bg-brand-mint px-3 py-1.5 text-[11px] font-black text-[#111] shadow-[3px_3px_0_#93cdff]"><Sparkles size={13}/> LESS CHAT. MORE HAPPENING.</div>
           <h1 className="mt-7 text-[clamp(4rem,7vw,7rem)] font-black leading-[.86] tracking-[-.06em]">Make plans<br/>feel easy.</h1>
@@ -67,7 +67,7 @@ export default function AuthPage() {
 
       <section className="relative flex items-center justify-center px-5 py-10 sm:px-8 lg:px-12 xl:px-20">
         <div className="w-full max-w-lg">
-          <Link href="/welcome" className="mb-10 inline-flex items-center gap-3 lg:hidden"><BrandMark size={40}/><span className="text-xl font-black">linkup</span></Link>
+          <Link href="/" className="mb-10 inline-flex items-center gap-3 lg:hidden"><BrandMark size={40}/><span className="text-xl font-black">linkup</span></Link>
           <div className="mb-7"><div className="text-[10px] font-black tracking-[.18em] text-zinc-500">{isSignUp ? "START HERE" : "WELCOME BACK"}</div><h2 className="mt-2 text-4xl font-black tracking-tight sm:text-5xl">{isSignUp ? "Make your account." : "Log in to Linkup."}</h2><p className="mt-3 max-w-md text-sm font-medium leading-6 text-zinc-500">{isSignUp ? "A quick email check keeps your group private." : "Use the email and password from when you made your account."}</p></div>
           <div className="mb-6 grid grid-cols-2 rounded-2xl border-2 border-[#111] bg-white p-1.5 shadow-[3px_3px_0_#111]"><button onClick={() => chooseMode("signup")} className={`rounded-xl px-3 py-3 text-sm font-black transition ${isSignUp ? "bg-brand-blue text-black" : "text-zinc-500 hover:bg-zinc-100"}`}>Create account</button><button onClick={() => chooseMode("login")} className={`rounded-xl px-3 py-3 text-sm font-black transition ${!isSignUp ? "bg-brand-mint text-black" : "text-zinc-500 hover:bg-zinc-100"}`}>Log in</button></div>
           <form onSubmit={submit} className="brutal-card relative overflow-hidden p-5 sm:p-7">
@@ -81,7 +81,7 @@ export default function AuthPage() {
             <button disabled={busy} className="brutal-btn relative mt-5 w-full justify-center rounded-lg bg-brand-blue px-4 py-3.5 text-sm disabled:cursor-not-allowed disabled:opacity-60">{busy ? (isSignUp ? "Creating your account…" : "Logging you in…") : (isSignUp ? "Create account" : "Log in")}<ArrowRight size={16}/></button>
           </form>
           <div className="mt-5 flex items-start gap-3 rounded-xl bg-white p-4 text-xs leading-5 text-zinc-600"><KeyRound className="mt-0.5 shrink-0" size={16}/><p>{isSignUp ? "Already signed up? Switch to Log in above. New accounts need a confirmation email before they can enter a private Link." : "New here? Switch to Create account above — you will choose a name before joining your first Link."}</p></div>
-          <Link href="/welcome" className="mt-5 inline-flex items-center gap-2 text-xs font-black text-zinc-500 hover:text-black">← Back to home</Link>
+          <Link href="/" className="mt-5 inline-flex items-center gap-2 text-xs font-black text-zinc-500 hover:text-black">← Back to home</Link>
         </div>
       </section>
     </div>

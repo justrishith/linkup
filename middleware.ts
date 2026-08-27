@@ -44,10 +44,6 @@ export async function middleware(request: NextRequest) {
   }
   const hasSession = Boolean(accessToken)
 
-  if (pathname === '/' && !hasSession) {
-    return clearAuth(NextResponse.redirect(new URL('/welcome', request.url)))
-  }
-
   if ((pathname.startsWith('/dashboard') || pathname === '/account') && !hasSession) {
     return clearAuth(NextResponse.redirect(new URL('/auth', request.url)))
   }
@@ -61,5 +57,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/', '/auth/:path*', '/account/:path*', '/dashboard/:path*', '/api/:path*'],
+  matcher: ['/auth/:path*', '/account/:path*', '/dashboard/:path*', '/api/:path*'],
 }

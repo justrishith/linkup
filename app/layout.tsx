@@ -1,9 +1,11 @@
 import type { Metadata } from 'next'
 import './globals.css'
+import '@ascentsparksoftware/react-calendar/styles.css'
+import 'react-tourlight/styles.css'
 
 export const metadata: Metadata = {
-  title: 'Linkup · Your crew, in one place',
-  description: 'Plan events, share ideas, split costs, and keep the memories together.',
+  title: 'Linkup · Get the group out of the chat',
+  description: 'One playful home for your group’s dates, ideas, and plans.',
 }
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

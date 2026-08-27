@@ -45,21 +45,28 @@ export async function POST(request: Request) {
   const user = await getUser(accessToken)
   if (!user) return NextResponse.json({ error: 'Session expired' }, { status: 401 })
 
-  const { name, description = '' } = await request.json()
-  if (!name?.trim()) return NextResponse.json({ error: 'Group name is required' }, { status: 400 })
+  const body = await request.json().catch(() => ({}))
+  const name = typeof body.name === 'string' ? body.name.trim() : ''
+  const description = typeof body.description === 'string' ? body.description.trim() : ''
+  if (!name) return NextResponse.json({ error: 'Group name is required' }, { status: 400 })
+
+  // Use a server-generated ID and a minimal response. Returning the new row here
+  // would invoke the read policy before the owner membership exists.
+  const group = { id: crypto.randomUUID(), name, description, owner_id: user.id }
 
   const groupResponse = await fetch(`${supabase.url}/rest/v1/groups`, {
     method: 'POST',
-    headers: { apikey: supabase.key, Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json', Prefer: 'return=representation' },
-    body: JSON.stringify({ name: name.trim(), description, owner_id: user.id }),
+    headers: { apikey: supabase.key, Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+    body: JSON.stringify(group),
   })
-  const groups = await groupResponse.json().catch(() => [])
-  if (!groupResponse.ok) return NextResponse.json({ error: groups?.message || groups?.hint || 'Unable to create group' }, { status: groupResponse.status })
+  if (!groupResponse.ok) {
+    const error = await groupResponse.json().catch(() => ({}))
+    return NextResponse.json({ error: error?.message || error?.hint || 'Unable to create group' }, { status: groupResponse.status })
+  }
 
-  const group = Array.isArray(groups) ? groups[0] : groups
   const memberResponse = await fetch(`${supabase.url}/rest/v1/group_members`, {
     method: 'POST',
-    headers: { apikey: supabase.key, Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json', Prefer: 'return=representation' },
+    headers: { apikey: supabase.key, Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
     body: JSON.stringify({ group_id: group.id, user_id: user.id, role: 'owner' }),
   })
   if (!memberResponse.ok) {

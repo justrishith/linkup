@@ -887,6 +887,31 @@ export type Database = {
         }
         Returns: string
       }
+      create_sub_group: {
+        Args: {
+          p_description?: string
+          p_name: string
+          p_parent_group_id: string
+        }
+        Returns: {
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          owner_id: string
+          parent_group_id: string | null
+          status: string
+          theme: Json
+          updated_at: string
+          visibility: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "groups"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       get_group_invite: {
         Args: { p_code: string }
         Returns: {

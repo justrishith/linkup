@@ -31,13 +31,31 @@ export async function POST(request: Request) {
   const body = await request.json().catch(() => ({}))
   const name = typeof body.name === 'string' ? body.name.trim() : ''
   const description = typeof body.description === 'string' ? body.description.trim() : ''
+  const parentGroupId = typeof body.parentGroupId === 'string' ? body.parentGroupId : ''
+  const visibility = body.visibility === 'discoverable' ? 'discoverable' : 'private'
   if (!name) return NextResponse.json({ error: 'Group name is required' }, { status: 400 })
 
-  const { data: group, error } = await supabase.rpc('create_group', {
-    p_name: name,
-    p_description: description || null,
-  })
+  const result = parentGroupId
+    ? await supabase.rpc('create_sub_group', {
+        p_parent_group_id: parentGroupId,
+        p_name: name,
+        p_description: description || null,
+      })
+    : await supabase.rpc('create_group', {
+        p_name: name,
+        p_description: description || null,
+      })
+  const { data: group, error } = result
   if (error) return NextResponse.json({ error: error.message }, { status: 400 })
+
+  if (!parentGroupId && visibility === 'discoverable') {
+    const { error: visibilityError } = await supabase
+      .from('groups')
+      .update({ visibility })
+      .eq('id', group.id)
+    if (visibilityError) return NextResponse.json({ error: visibilityError.message }, { status: 400 })
+    group.visibility = visibility
+  }
 
   return NextResponse.json({ group, member_count: 1 }, { status: 201 })
 }

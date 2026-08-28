@@ -105,6 +105,87 @@ export type Database = {
           },
         ]
       }
+      event_date_options: {
+        Row: {
+          created_at: string
+          created_by: string
+          ends_at: string | null
+          event_id: string
+          id: string
+          starts_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          ends_at?: string | null
+          event_id: string
+          id?: string
+          starts_at: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          ends_at?: string | null
+          event_id?: string
+          id?: string
+          starts_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_date_options_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_date_options_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_date_votes: {
+        Row: {
+          created_at: string
+          option_id: string
+          updated_at: string
+          user_id: string
+          vote: string
+        }
+        Insert: {
+          created_at?: string
+          option_id: string
+          updated_at?: string
+          user_id: string
+          vote?: string
+        }
+        Update: {
+          created_at?: string
+          option_id?: string
+          updated_at?: string
+          user_id?: string
+          vote?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_date_votes_option_id_fkey"
+            columns: ["option_id"]
+            isOneToOne: false
+            referencedRelation: "event_date_options"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_date_votes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       event_members: {
         Row: {
           event_id: string
@@ -134,6 +215,45 @@ export type Database = {
           },
           {
             foreignKeyName: "event_members_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_proofs: {
+        Row: {
+          created_at: string
+          event_id: string
+          id: string
+          photo_reference: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          id?: string
+          photo_reference: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          id?: string
+          photo_reference?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_proofs_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_proofs_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
@@ -197,6 +317,7 @@ export type Database = {
           starts_at: string | null
           status: string
           updated_at: string
+          verified_at: string | null
         }
         Insert: {
           cover_url?: string | null
@@ -211,6 +332,7 @@ export type Database = {
           starts_at?: string | null
           status?: string
           updated_at?: string
+          verified_at?: string | null
         }
         Update: {
           cover_url?: string | null
@@ -225,6 +347,7 @@ export type Database = {
           starts_at?: string | null
           status?: string
           updated_at?: string
+          verified_at?: string | null
         }
         Relationships: [
           {
@@ -370,6 +493,48 @@ export type Database = {
           },
         ]
       }
+      group_messages: {
+        Row: {
+          body: string
+          created_at: string
+          edited_at: string | null
+          group_id: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          edited_at?: string | null
+          group_id: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          edited_at?: string | null
+          group_id?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "group_messages_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "group_messages_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       groups: {
         Row: {
           created_at: string
@@ -377,7 +542,11 @@ export type Database = {
           id: string
           name: string
           owner_id: string
+          parent_group_id: string | null
+          status: string
+          theme: Json
           updated_at: string
+          visibility: string
         }
         Insert: {
           created_at?: string
@@ -385,7 +554,11 @@ export type Database = {
           id?: string
           name: string
           owner_id: string
+          parent_group_id?: string | null
+          status?: string
+          theme?: Json
           updated_at?: string
+          visibility?: string
         }
         Update: {
           created_at?: string
@@ -393,7 +566,11 @@ export type Database = {
           id?: string
           name?: string
           owner_id?: string
+          parent_group_id?: string | null
+          status?: string
+          theme?: Json
           updated_at?: string
+          visibility?: string
         }
         Relationships: [
           {
@@ -403,6 +580,13 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "groups_parent_group_id_fkey"
+            columns: ["parent_group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
         ]
       }
       idea_votes: {
@@ -410,16 +594,19 @@ export type Database = {
           created_at: string
           idea_id: string
           user_id: string
+          vote: string
         }
         Insert: {
           created_at?: string
           idea_id: string
           user_id: string
+          vote?: string
         }
         Update: {
           created_at?: string
           idea_id?: string
           user_id?: string
+          vote?: string
         }
         Relationships: [
           {
@@ -573,6 +760,61 @@ export type Database = {
           },
         ]
       }
+      point_ledger: {
+        Row: {
+          created_at: string
+          event_id: string | null
+          group_id: string
+          id: string
+          metadata: Json
+          points: number
+          reason: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_id?: string | null
+          group_id: string
+          id?: string
+          metadata?: Json
+          points: number
+          reason: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: string | null
+          group_id?: string
+          id?: string
+          metadata?: Json
+          points?: number
+          reason?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "point_ledger_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "point_ledger_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "point_ledger_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -602,20 +844,34 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      accept_group_invite: {
-        Args: { p_code: string }
-        Returns: string
-      }
+      accept_group_invite: { Args: { p_code: string }; Returns: string }
       create_group: {
-        Args: { p_description?: string | null; p_name: string }
-        Returns: Database["public"]["Tables"]["groups"]["Row"]
+        Args: { p_description?: string; p_name: string }
+        Returns: {
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          owner_id: string
+          parent_group_id: string | null
+          status: string
+          theme: Json
+          updated_at: string
+          visibility: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "groups"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       get_group_invite: {
         Args: { p_code: string }
         Returns: {
           code: string
-          expires_at: string | null
-          group_description: string | null
+          expires_at: string
+          group_description: string
           group_id: string
           group_name: string
         }[]

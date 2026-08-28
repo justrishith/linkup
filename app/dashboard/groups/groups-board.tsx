@@ -32,7 +32,12 @@ export default function GroupsBoard() {
     setLoading(false)
   }
 
-  useEffect(() => { load().catch(() => { setError('We could not load your links.'); setLoading(false) }) }, [])
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      load().catch(() => { setError('We could not load your links.'); setLoading(false) })
+    }, 0)
+    return () => window.clearTimeout(timer)
+  }, [])
 
   async function create(event: FormEvent) {
     event.preventDefault(); setBusy(true); setError('')

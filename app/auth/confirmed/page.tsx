@@ -37,7 +37,7 @@ export default function ConfirmedPage() {
       router.replace('/onboarding')
     }
     finish().catch(() => { setError('We confirmed your email, but could not finish signing you in.'); setWorking(false) })
-  }, [])
+  }, [router])
 
   return <main className="grid min-h-screen place-items-center bg-[#fafaf8] px-5 text-[#111]">
     <div className="w-full max-w-lg text-center">

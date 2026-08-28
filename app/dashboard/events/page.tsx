@@ -24,9 +24,12 @@ export default function EventsPage() {
   }
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search)
-    if (params.get('new') === '1') setOpen(true)
-    load().catch(() => {})
+    const timer = window.setTimeout(() => {
+      const params = new URLSearchParams(window.location.search)
+      if (params.get('new') === '1') setOpen(true)
+      load().catch(() => {})
+    }, 0)
+    return () => window.clearTimeout(timer)
   }, [])
 
   async function createEvent(event: FormEvent) {

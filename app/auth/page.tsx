@@ -17,6 +17,7 @@ export default function AuthPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [busy, setBusy] = useState(false)
   const [googleBusy, setGoogleBusy] = useState(false)
+  const [emailLinkBusy, setEmailLinkBusy] = useState(false)
   const [message, setMessage] = useState("")
   const [error, setError] = useState("")
   const [nextPath, setNextPath] = useState("/dashboard")
@@ -56,6 +57,35 @@ export default function AuthPage() {
       setError(oauthError.message || "Google sign-in could not start. Please try again.")
       setGoogleBusy(false)
     }
+  }
+
+  async function sendEmailLink() {
+    if (!email.trim()) {
+      setError("Enter your email first.")
+      return
+    }
+    if (mode === "signup" && !name.trim()) {
+      setError("Enter your name first.")
+      return
+    }
+
+    setEmailLinkBusy(true)
+    setMessage("")
+    setError("")
+    const callback = new URL("/auth/callback", window.location.origin)
+    callback.searchParams.set("next", mode === "signup" ? "/onboarding" : nextPath)
+    const { error: emailError } = await createSupabaseBrowserClient().auth.signInWithOtp({
+      email: email.trim(),
+      options: {
+        emailRedirectTo: callback.toString(),
+        shouldCreateUser: mode === "signup",
+        data: mode === "signup" ? { display_name: name.trim() } : undefined,
+      },
+    })
+
+    if (emailError) setError(emailError.message || "The sign-in email could not be sent.")
+    else setMessage(`Check ${email.trim()} for your LinkUp sign-in link. You can close this tab after opening it.`)
+    setEmailLinkBusy(false)
   }
 
   async function submit(event: FormEvent) {
@@ -102,7 +132,7 @@ export default function AuthPage() {
           <Link href="/" className="mb-10 inline-flex items-center gap-3 lg:hidden"><BrandMark size={40}/><span className="text-xl font-black">linkup</span></Link>
           <div className="mb-7"><div className="text-[10px] font-black tracking-[.18em] text-zinc-500">{isSignUp ? "START HERE" : "WELCOME BACK"}</div><h2 className="mt-2 text-4xl font-black tracking-tight sm:text-5xl">{isSignUp ? "Make your account." : "Log in to Linkup."}</h2><p className="mt-3 max-w-md text-sm font-medium leading-6 text-zinc-500">{isSignUp ? "A quick email check keeps your group private." : "Use the email and password from when you made your account."}</p></div>
           <div className="mb-6 grid grid-cols-2 rounded-2xl border-2 border-[#111] bg-white p-1.5 shadow-[3px_3px_0_#111]"><button onClick={() => chooseMode("signup")} className={`rounded-xl px-3 py-3 text-sm font-black transition ${isSignUp ? "bg-brand-blue text-black" : "text-zinc-500 hover:bg-zinc-100"}`}>Create account</button><button onClick={() => chooseMode("login")} className={`rounded-xl px-3 py-3 text-sm font-black transition ${!isSignUp ? "bg-brand-mint text-black" : "text-zinc-500 hover:bg-zinc-100"}`}>Log in</button></div>
-          <button type="button" disabled={googleBusy || busy} onClick={signInWithGoogle} className="brutal-btn mb-5 w-full justify-center rounded-lg bg-white px-4 py-3.5 text-sm disabled:cursor-not-allowed disabled:opacity-60"><span className="grid h-6 w-6 place-items-center rounded-full bg-white font-black text-[#4285f4]">G</span>{googleBusy ? "Opening Google…" : "Continue with Google"}</button>
+          <button type="button" disabled={googleBusy || busy || emailLinkBusy} onClick={signInWithGoogle} className="brutal-btn mb-5 w-full justify-center rounded-lg bg-white px-4 py-3.5 text-sm disabled:cursor-not-allowed disabled:opacity-60"><span className="grid h-6 w-6 place-items-center rounded-full bg-white font-black text-[#4285f4]">G</span>{googleBusy ? "Opening Google…" : "Continue with Google"}</button>
           <div className="mb-5 flex items-center gap-3 text-[10px] font-black tracking-[.16em] text-zinc-400"><span className="h-px flex-1 bg-zinc-300"/>OR USE EMAIL<span className="h-px flex-1 bg-zinc-300"/></div>
           <form onSubmit={submit} className="brutal-card relative overflow-hidden p-5 sm:p-7">
             <div className="absolute -right-12 -top-12 h-40 w-40 rounded-full bg-brand-lemon/75 blur-3xl" />
@@ -112,6 +142,7 @@ export default function AuthPage() {
             {isSignUp && <div className="relative mt-4 grid gap-2 rounded-xl border border-zinc-200 bg-brand-cream p-3 text-[11px] font-semibold text-zinc-600"><div className="flex items-center gap-2"><MailCheck size={14}/> We send one confirmation email.</div><div className="flex items-center gap-2"><Check size={14}/> Then you create your first Link.</div></div>}
             {error && <div role="alert" className="relative mt-4 rounded-lg border-2 border-[#111] bg-brand-coral px-3 py-3 text-xs font-bold">{error}</div>}
             {message && <div role="status" className="relative mt-4 rounded-lg border-2 border-[#111] bg-brand-mint px-3 py-3 text-xs font-bold">{message}</div>}
+            <button type="button" onClick={sendEmailLink} disabled={emailLinkBusy || googleBusy || busy} className="brutal-btn relative mt-5 w-full justify-center rounded-lg bg-brand-mint px-4 py-3.5 text-sm disabled:cursor-not-allowed disabled:opacity-60">{emailLinkBusy ? "Sending your link…" : "Email me a sign-in link"}<MailCheck size={16}/></button>
             <button disabled={busy} className="brutal-btn relative mt-5 w-full justify-center rounded-lg bg-brand-blue px-4 py-3.5 text-sm disabled:cursor-not-allowed disabled:opacity-60">{busy ? (isSignUp ? "Creating your account…" : "Logging you in…") : (isSignUp ? "Create account" : "Log in")}<ArrowRight size={16}/></button>
           </form>
           <div className="mt-5 flex items-start gap-3 rounded-xl bg-white p-4 text-xs leading-5 text-zinc-600"><KeyRound className="mt-0.5 shrink-0" size={16}/><p>{isSignUp ? "Already signed up? Switch to Log in above. New accounts need a confirmation email before they can enter a private Link." : "New here? Switch to Create account above — you will choose a name before joining your first Link."}</p></div>

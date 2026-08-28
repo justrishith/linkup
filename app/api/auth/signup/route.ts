@@ -1,24 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
-import { setAuthCookies } from '@/lib/auth-cookies'
+import { createSupabaseRouteClient } from '@/lib/supabase-server'
 
 export async function POST(request: NextRequest) {
   const { email, password, displayName } = await request.json().catch(() => ({}))
   if (!email || !password) return NextResponse.json({ error: 'Email and password are required' }, { status: 400 })
 
-  const redirectTo = new URL('/auth/confirmed', request.nextUrl.origin).toString()
-  const response = await fetch(`${supabase.url}/auth/v1/signup?redirect_to=${encodeURIComponent(redirectTo)}`, {
-    method: 'POST',
-    headers: { apikey: supabase.key, 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      email,
-      password,
+  const redirectTo = new URL('/auth/callback?next=/onboarding', request.nextUrl.origin).toString()
+  const cookieResponse = NextResponse.next()
+  const supabase = createSupabaseRouteClient(request, cookieResponse)
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: {
+      emailRedirectTo: redirectTo,
       data: { display_name: displayName || email.split('@')[0] },
-    }),
+    },
   })
+  if (error) return NextResponse.json({ error: error.message || 'Unable to sign up' }, { status: error.status || 400 })
 
-  const data = await response.json().catch(() => ({}))
-  if (!response.ok) return NextResponse.json({ error: data.msg || data.message || 'Unable to sign up' }, { status: response.status })
-
-  return setAuthCookies(NextResponse.json({ user: data.user, session: Boolean(data.access_token) }), data)
+  const response = NextResponse.json({ user: data.user, session: Boolean(data.session) })
+  cookieResponse.cookies.getAll().forEach((cookie) => response.cookies.set(cookie))
+  return response
 }

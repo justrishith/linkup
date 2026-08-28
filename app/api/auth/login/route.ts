@@ -1,16 +1,16 @@
-import { NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
-import { setAuthCookies } from '@/lib/auth-cookies'
+import { NextRequest, NextResponse } from 'next/server'
+import { createSupabaseRouteClient } from '@/lib/supabase-server'
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   const { email, password } = await request.json().catch(() => ({}))
   if (!email || !password) return NextResponse.json({ error: 'Email and password are required' }, { status: 400 })
-  const response = await fetch(`${supabase.url}/auth/v1/token?grant_type=password`, {
-    method: 'POST',
-    headers: { apikey: supabase.key, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email, password }),
-  })
-  const data = await response.json().catch(() => ({}))
-  if (!response.ok) return NextResponse.json({ error: data.error_description || data.msg || 'Invalid login' }, { status: 401 })
-  return setAuthCookies(NextResponse.json({ user: data.user }), data)
+
+  const cookieResponse = NextResponse.next()
+  const supabase = createSupabaseRouteClient(request, cookieResponse)
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+  if (error || !data.user) return NextResponse.json({ error: error?.message || 'Invalid login' }, { status: 401 })
+
+  const response = NextResponse.json({ user: data.user })
+  cookieResponse.cookies.getAll().forEach((cookie) => response.cookies.set(cookie))
+  return response
 }

@@ -17,7 +17,7 @@ function IdeasContent() {
   const [showDetails,setShowDetails]=useState(false),[voted,setVoted]=useState<Record<string,boolean>>({})
 
   async function load(){const [g,i]=await Promise.all([fetch('/api/groups'),fetch('/api/ideas')]);const gd=await g.json().catch(()=>({}));const id=await i.json().catch(()=>({}));if(g.ok)setGroups(gd.groups||[]);if(i.ok)setIdeas(id.ideas||[])}
-  useEffect(()=>{load().catch(()=>{})},[])
+  useEffect(()=>{const timer=window.setTimeout(()=>{load().catch(()=>{})},0);return()=>window.clearTimeout(timer)},[])
 
   function reset(){setTitle('');setDescription('');setCategory('');setShowDetails(false);setOpen(false);setError('')}
   async function addIdea(){if(!title.trim()||busy)return;setBusy(true);setError('');const groupId=groups[0]?.group_id;if(!groupId){setError('Create a Link first.');setBusy(false);return}const r=await fetch('/api/ideas',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({group_id:groupId,title:title.trim(),description:description.trim()||null,category:category||null})});const d=await r.json().catch(()=>({}));if(!r.ok)setError(d.error||'Could not add idea');else{setIdeas([d.idea,...ideas]);reset()}setBusy(false)}

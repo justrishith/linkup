@@ -1,10 +1,13 @@
-import { NextResponse } from 'next/server'
-import { cookies } from 'next/headers'
-import { supabase } from '@/lib/supabase'
+import { NextRequest, NextResponse } from 'next/server'
 import { clearAuthCookies } from '@/lib/auth-cookies'
+import { createSupabaseRouteClient } from '@/lib/supabase-server'
 
-export async function POST() {
-  const accessToken = (await cookies()).get('linkup_access_token')?.value
-  if (accessToken) await fetch(`${supabase.url}/auth/v1/logout`, { method: 'POST', headers: { apikey: supabase.key, Authorization: `Bearer ${accessToken}` } }).catch(() => undefined)
-  return clearAuthCookies(NextResponse.json({ ok: true }))
+export async function POST(request: NextRequest) {
+  const cookieResponse = NextResponse.next()
+  const supabase = createSupabaseRouteClient(request, cookieResponse)
+  await supabase.auth.signOut()
+
+  const response = clearAuthCookies(NextResponse.json({ ok: true }))
+  cookieResponse.cookies.getAll().forEach((cookie) => response.cookies.set(cookie))
+  return response
 }

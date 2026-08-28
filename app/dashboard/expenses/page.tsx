@@ -2,7 +2,7 @@
 
 import { FormEvent, Suspense, useEffect, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
-import { ArrowUpRight, CircleDollarSign, Plus, ReceiptText, WalletCards, X } from 'lucide-react'
+import { ArrowUpRight, Plus, ReceiptText, WalletCards, X } from 'lucide-react'
 import DashboardShell from '../_components/shell'
 
 type Expense={id:string;description:string;amount:number;currency:string;paid_by:string;event_id?:string|null}
@@ -11,7 +11,7 @@ type GroupRow={group_id:string;groups:{name:string}|null}
 function ExpensesContent(){
  const searchParams=useSearchParams();const [expenses,setExpenses]=useState<Expense[]>([]);const [groups,setGroups]=useState<GroupRow[]>([]);const [open,setOpen]=useState(searchParams.get('new')==='1');const [busy,setBusy]=useState(false);const [error,setError]=useState('');const [form,setForm]=useState({description:'',amount:''})
  async function load(){const[g,e]=await Promise.all([fetch('/api/groups'),fetch('/api/expenses')]);const gd=await g.json().catch(()=>({}));const ed=await e.json().catch(()=>({}));if(g.ok)setGroups(gd.groups||[]);if(e.ok)setExpenses(ed.expenses||[])}
- useEffect(()=>{load().catch(()=>{})},[])
+ useEffect(()=>{const timer=window.setTimeout(()=>{load().catch(()=>{})},0);return()=>window.clearTimeout(timer)},[])
  async function addExpense(e:FormEvent){e.preventDefault();setBusy(true);setError('');const groupId=groups[0]?.group_id;if(!groupId){setError('Create a link first.');setBusy(false);return}const r=await fetch('/api/expenses',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({groupId,description:form.description,amount:Number(form.amount)})});const d=await r.json().catch(()=>({}));if(!r.ok)setError(d.error||'Could not add expense');else{setExpenses([d.expense,...expenses]);setForm({description:'',amount:''});setOpen(false)}setBusy(false)}
  const total=expenses.reduce((sum,e)=>sum+Number(e.amount),0)
  return <DashboardShell title="Expenses" eyebrow="KEEP THE MONEY FAIR">

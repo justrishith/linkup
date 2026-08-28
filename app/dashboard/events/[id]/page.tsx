@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
 import { FormEvent, useEffect, useState } from 'react'
-import { ArrowLeft, CalendarDays, CheckCircle2, MapPin, Pencil, Trash2, Users, X } from 'lucide-react'
+import { ArrowLeft, CalendarDays, MapPin, Pencil, Trash2, Users, X } from 'lucide-react'
 import DashboardShell from '../../_components/shell'
 
 type EventItem={id:string;name:string;description?:string|null;starts_at?:string|null;ends_at?:string|null;location?:string|null;status:string}

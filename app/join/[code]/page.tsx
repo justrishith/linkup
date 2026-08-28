@@ -14,6 +14,7 @@ export default function JoinPage({ params }: { params: Promise<{ code: string }>
   const [joining, setJoining] = useState(false)
   const [error, setError] = useState("")
   const [joined, setJoined] = useState(false)
+  const [needsAccount, setNeedsAccount] = useState(false)
 
   useEffect(() => {
     params.then(({ code: routeCode }) => {
@@ -21,7 +22,8 @@ export default function JoinPage({ params }: { params: Promise<{ code: string }>
       setCode(normalized)
       fetch(`/api/invites?code=${encodeURIComponent(normalized)}`).then(async response => {
         const data = await response.json().catch(() => ({}))
-        if (!response.ok) setError(data.error || "This invite is unavailable")
+        if (response.status === 401) setNeedsAccount(true)
+        else if (!response.ok) setError(data.error || "This invite is unavailable")
         else setInvite(data.invite)
       }).catch(() => setError("Could not load this invite")).finally(() => setLoading(false))
     })
@@ -44,7 +46,12 @@ export default function JoinPage({ params }: { params: Promise<{ code: string }>
       <Link href="/" className="inline-flex items-center gap-3"><BrandMark size={40}/><span className="text-xl font-black">linkup</span></Link>
       <div className="brutal-card mt-12 overflow-hidden p-6 sm:p-9">
         <div className="grid h-12 w-12 place-items-center rounded-2xl border-2 border-[#1a1a1a] bg-brand-blue shadow-[3px_3px_0_#1a1a1a]"><Link2 size={22}/></div>
-        {loading ? <div className="mt-8 flex items-center gap-2 text-sm font-bold"><LoaderCircle className="animate-spin" size={16}/> Loading invite…</div> : invite ? <>
+        {loading ? <div className="mt-8 flex items-center gap-2 text-sm font-bold"><LoaderCircle className="animate-spin" size={16}/> Loading invite…</div> : needsAccount ? <>
+          <div className="mt-7 text-[10px] font-black tracking-[.18em] text-zinc-400">SAVE YOUR INVITE</div>
+          <h1 className="mt-2 text-4xl font-black tracking-tight">Sign in to join.</h1>
+          <p className="mt-3 text-sm font-medium leading-6 text-zinc-500">Your invite code is saved. After Google or email sign-in, Linkup will bring you straight back here.</p>
+          <Link href={`/auth?mode=signup&next=${encodeURIComponent(`/join/${code}`)}`} className="brutal-btn mt-5 inline-flex rounded-lg bg-brand-blue px-5 py-3.5 text-sm">Continue to sign in <ArrowRight size={16}/></Link>
+        </> : invite ? <>
           <div className="mt-7 text-[10px] font-black tracking-[.18em] text-zinc-400">YOU’RE INVITED</div>
           <h1 className="mt-2 text-4xl font-black tracking-tight">Join {invite.groups?.name || "this link"}.</h1>
           <p className="mt-3 text-sm font-medium leading-6 text-zinc-500">{invite.groups?.description || "A shared space for plans, ideas, expenses, and memories."}</p>

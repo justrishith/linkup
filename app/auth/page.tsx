@@ -4,6 +4,8 @@ import Link from "next/link"
 import { FormEvent, useEffect, useState } from "react"
 import { ArrowRight, Check, Eye, EyeOff, KeyRound, MailCheck, Sparkles } from "lucide-react"
 import BrandMark from "../_components/brand-mark"
+import { safeNextPath } from "@/lib/auth-redirect"
+import { createSupabaseBrowserClient } from "@/lib/supabase-browser"
 
 type Mode = "signup" | "login"
 
@@ -14,16 +16,46 @@ export default function AuthPage() {
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [busy, setBusy] = useState(false)
+  const [googleBusy, setGoogleBusy] = useState(false)
   const [message, setMessage] = useState("")
   const [error, setError] = useState("")
+  const [nextPath, setNextPath] = useState("/dashboard")
 
-  useEffect(() => setMode(new URLSearchParams(window.location.search).get("mode") === "signup" ? "signup" : "login"), [])
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      const params = new URLSearchParams(window.location.search)
+      setMode(params.get("mode") === "signup" ? "signup" : "login")
+      setNextPath(safeNextPath(params.get("next")))
+      setError(params.get("error") || "")
+    }, 0)
+    return () => window.clearTimeout(timer)
+  }, [])
 
   function chooseMode(nextMode: Mode) {
     setMode(nextMode)
     setMessage("")
     setError("")
-    window.history.replaceState(null, "", `/auth?mode=${nextMode}`)
+    const params = new URLSearchParams({ mode: nextMode })
+    if (nextPath !== "/dashboard") params.set("next", nextPath)
+    window.history.replaceState(null, "", `/auth?${params}`)
+  }
+
+  async function signInWithGoogle() {
+    setGoogleBusy(true)
+    setMessage("")
+    setError("")
+
+    const callback = new URL("/auth/callback", window.location.origin)
+    if (nextPath !== "/dashboard") callback.searchParams.set("next", nextPath)
+    const { error: oauthError } = await createSupabaseBrowserClient().auth.signInWithOAuth({
+      provider: "google",
+      options: { redirectTo: callback.toString() },
+    })
+
+    if (oauthError) {
+      setError(oauthError.message || "Google sign-in could not start. Please try again.")
+      setGoogleBusy(false)
+    }
   }
 
   async function submit(event: FormEvent) {
@@ -43,7 +75,7 @@ export default function AuthPage() {
         setMessage(`Check ${email} for the confirmation email. Look in Spam too. If the link does not bring you back automatically, return here and use Log in.`)
         return
       }
-      window.location.assign(mode === "signup" ? "/onboarding" : "/dashboard")
+      window.location.assign(mode === "signup" ? "/onboarding" : nextPath)
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "We could not complete that request.")
     } finally {
@@ -70,6 +102,8 @@ export default function AuthPage() {
           <Link href="/" className="mb-10 inline-flex items-center gap-3 lg:hidden"><BrandMark size={40}/><span className="text-xl font-black">linkup</span></Link>
           <div className="mb-7"><div className="text-[10px] font-black tracking-[.18em] text-zinc-500">{isSignUp ? "START HERE" : "WELCOME BACK"}</div><h2 className="mt-2 text-4xl font-black tracking-tight sm:text-5xl">{isSignUp ? "Make your account." : "Log in to Linkup."}</h2><p className="mt-3 max-w-md text-sm font-medium leading-6 text-zinc-500">{isSignUp ? "A quick email check keeps your group private." : "Use the email and password from when you made your account."}</p></div>
           <div className="mb-6 grid grid-cols-2 rounded-2xl border-2 border-[#111] bg-white p-1.5 shadow-[3px_3px_0_#111]"><button onClick={() => chooseMode("signup")} className={`rounded-xl px-3 py-3 text-sm font-black transition ${isSignUp ? "bg-brand-blue text-black" : "text-zinc-500 hover:bg-zinc-100"}`}>Create account</button><button onClick={() => chooseMode("login")} className={`rounded-xl px-3 py-3 text-sm font-black transition ${!isSignUp ? "bg-brand-mint text-black" : "text-zinc-500 hover:bg-zinc-100"}`}>Log in</button></div>
+          <button type="button" disabled={googleBusy || busy} onClick={signInWithGoogle} className="brutal-btn mb-5 w-full justify-center rounded-lg bg-white px-4 py-3.5 text-sm disabled:cursor-not-allowed disabled:opacity-60"><span className="grid h-6 w-6 place-items-center rounded-full bg-white font-black text-[#4285f4]">G</span>{googleBusy ? "Opening Google…" : "Continue with Google"}</button>
+          <div className="mb-5 flex items-center gap-3 text-[10px] font-black tracking-[.16em] text-zinc-400"><span className="h-px flex-1 bg-zinc-300"/>OR USE EMAIL<span className="h-px flex-1 bg-zinc-300"/></div>
           <form onSubmit={submit} className="brutal-card relative overflow-hidden p-5 sm:p-7">
             <div className="absolute -right-12 -top-12 h-40 w-40 rounded-full bg-brand-lemon/75 blur-3xl" />
             {isSignUp && <label className="relative block"><span className="text-xs font-black">Your name</span><input value={name} onChange={event => setName(event.target.value)} required className="brutal-input mt-2 w-full rounded-lg px-4 py-3.5 text-sm outline-none focus:shadow-[3px_3px_0_#93cdff]" placeholder="Rishith" autoComplete="name" /></label>}

@@ -17,12 +17,12 @@ function tokenNeedsRefresh(token: string) {
   } catch { return true }
 }
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
   let accessToken = request.cookies.get('linkup_access_token')?.value
   const hadAccessToken = Boolean(accessToken)
   const refreshToken = request.cookies.get('linkup_refresh_token')?.value
-  let response = NextResponse.next()
+  const response = NextResponse.next()
 
   if (accessToken && tokenNeedsRefresh(accessToken)) {
     if (!refreshToken) accessToken = undefined

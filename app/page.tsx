@@ -1,7 +1,9 @@
-import { cookies } from "next/headers"
 import LinkupExperience from "./_components/linkup-experience"
+import { createSupabaseServerClient } from "@/lib/supabase-server"
 
 export default async function Home() {
-  const isAuthenticated = Boolean((await cookies()).get("linkup_access_token")?.value)
+  const supabase = await createSupabaseServerClient()
+  const { data: claimsData } = await supabase.auth.getClaims()
+  const isAuthenticated = Boolean(claimsData?.claims?.sub)
   return <LinkupExperience isAuthenticated={isAuthenticated} />
 }

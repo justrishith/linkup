@@ -1,37 +1,20 @@
-import { NextResponse } from 'next/server'
-import { cookies } from 'next/headers'
-import { supabase } from '@/lib/supabase'
-
-async function getContext() {
-  const token = (await cookies()).get('linkup_access_token')?.value
-  if (!token) return null
-  const response = await fetch(`${supabase.url}/auth/v1/user`, { headers: { apikey: supabase.key, Authorization: `Bearer ${token}` }, cache: 'no-store' })
-  const user = await response.json().catch(() => null)
-  return response.ok && user?.id ? { token, user } : null
-}
+import { NextResponse } from "next/server"
+import { createSupabaseServerClient } from "@/lib/supabase-server"
 
 export async function POST(request: Request) {
-  const ctx = await getContext()
-  if (!ctx) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  const { ideaId } = await request.json()
-  if (!ideaId) return NextResponse.json({ error: 'ideaId is required' }, { status: 400 })
-
-  const existingResponse = await fetch(`${supabase.url}/rest/v1/idea_votes?idea_id=eq.${encodeURIComponent(ideaId)}&user_id=eq.${encodeURIComponent(ctx.user.id)}&select=idea_id`, {
-    headers: { apikey: supabase.key, Authorization: `Bearer ${ctx.token}` }, cache: 'no-store'
-  })
-  const existing = await existingResponse.json().catch(() => [])
-  if (Array.isArray(existing) && existing.length) {
-    await fetch(`${supabase.url}/rest/v1/idea_votes?idea_id=eq.${encodeURIComponent(ideaId)}&user_id=eq.${encodeURIComponent(ctx.user.id)}`, {
-      method: 'DELETE', headers: { apikey: supabase.key, Authorization: `Bearer ${ctx.token}` }
-    })
+  const supabase = await createSupabaseServerClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  const { ideaId } = await request.json().catch(() => ({}))
+  if (!ideaId) return NextResponse.json({ error: "ideaId is required" }, { status: 400 })
+  const { data: existing, error: lookupError } = await supabase.from("idea_votes").select("idea_id").eq("idea_id", ideaId).eq("user_id", user.id).maybeSingle()
+  if (lookupError) return NextResponse.json({ error: lookupError.message }, { status: 400 })
+  if (existing) {
+    const { error } = await supabase.from("idea_votes").delete().eq("idea_id", ideaId).eq("user_id", user.id)
+    if (error) return NextResponse.json({ error: error.message }, { status: 400 })
     return NextResponse.json({ voted: false })
   }
-
-  const response = await fetch(`${supabase.url}/rest/v1/idea_votes`, {
-    method: 'POST', headers: { apikey: supabase.key, Authorization: `Bearer ${ctx.token}`, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
-    body: JSON.stringify({ idea_id: ideaId, user_id: ctx.user.id }),
-  })
-  const data = await response.json().catch(() => ({}))
-  if (!response.ok) return NextResponse.json({ error: data.message || data.hint || 'Unable to vote' }, { status: response.status })
+  const { error } = await supabase.from("idea_votes").insert({ idea_id: ideaId, user_id: user.id, vote: "like" })
+  if (error) return NextResponse.json({ error: error.message || "Unable to vote" }, { status: 400 })
   return NextResponse.json({ voted: true })
 }

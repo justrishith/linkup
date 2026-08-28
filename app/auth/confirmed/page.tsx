@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Check, ArrowRight, Loader2 } from 'lucide-react'
 import Link from 'next/link'
 import BrandMark from '../../_components/brand-mark'
+import { createSupabaseBrowserClient } from '@/lib/supabase-browser'
 
 export default function ConfirmedPage() {
   const router = useRouter()
@@ -20,19 +21,12 @@ export default function ConfirmedPage() {
         return
       }
 
-      const accessToken = params.get('access_token')
-      const refreshToken = params.get('refresh_token')
-      if (!accessToken) {
+      const { data, error: sessionError } = await createSupabaseBrowserClient().auth.getSession()
+      if (sessionError || !data.session) {
+        setError('We confirmed your email, but could not finish signing you in. Request a new sign-in link.')
         setWorking(false)
         return
       }
-
-      const response = await fetch('/api/auth/session', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ access_token: accessToken, refresh_token: refreshToken }),
-      })
-      if (!response.ok) setError('We confirmed your email, but could not finish signing you in.')
       setWorking(false)
       router.replace('/onboarding')
     }

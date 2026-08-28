@@ -312,6 +312,7 @@ export type Database = {
           ends_at: string | null
           group_id: string
           id: string
+          idea_id: string | null
           location: string | null
           name: string
           starts_at: string | null
@@ -327,6 +328,7 @@ export type Database = {
           ends_at?: string | null
           group_id: string
           id?: string
+          idea_id?: string | null
           location?: string | null
           name: string
           starts_at?: string | null
@@ -342,6 +344,7 @@ export type Database = {
           ends_at?: string | null
           group_id?: string
           id?: string
+          idea_id?: string | null
           location?: string | null
           name?: string
           starts_at?: string | null
@@ -362,6 +365,13 @@ export type Database = {
             columns: ["group_id"]
             isOneToOne: false
             referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "events_idea_id_fkey"
+            columns: ["idea_id"]
+            isOneToOne: false
+            referencedRelation: "ideas"
             referencedColumns: ["id"]
           },
         ]
@@ -865,6 +875,17 @@ export type Database = {
           isOneToOne: true
           isSetofReturn: false
         }
+      }
+      create_plan: {
+        Args: {
+          p_description?: string
+          p_group_id: string
+          p_idea_id?: string
+          p_location?: string
+          p_name: string
+          p_options?: Json
+        }
+        Returns: string
       }
       get_group_invite: {
         Args: { p_code: string }

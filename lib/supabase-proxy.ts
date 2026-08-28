@@ -1,6 +1,7 @@
 import { createServerClient } from "@supabase/ssr"
 import { NextResponse, type NextRequest } from "next/server"
 import { supabase as supabaseConfig } from "@/lib/supabase"
+import type { Database } from "@/lib/database.types"
 
 const legacyCookieOptions = {
   httpOnly: true,
@@ -11,7 +12,7 @@ const legacyCookieOptions = {
 
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request })
-  const supabase = createServerClient(supabaseConfig.url, supabaseConfig.key, {
+  const supabase = createServerClient<Database>(supabaseConfig.url, supabaseConfig.key, {
     cookies: {
       getAll: () => request.cookies.getAll(),
       setAll: (cookiesToSet, headers) => {

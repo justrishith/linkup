@@ -2,10 +2,11 @@ import { createServerClient } from "@supabase/ssr"
 import { cookies } from "next/headers"
 import { NextRequest, NextResponse } from "next/server"
 import { supabase } from "@/lib/supabase"
+import type { Database } from "@/lib/database.types"
 
 export async function createSupabaseServerClient() {
   const cookieStore = await cookies()
-  return createServerClient(supabase.url, supabase.key, {
+  return createServerClient<Database>(supabase.url, supabase.key, {
     cookies: {
       getAll: () => cookieStore.getAll(),
       setAll: (cookiesToSet) => {
@@ -20,7 +21,7 @@ export async function createSupabaseServerClient() {
 }
 
 export function createSupabaseRouteClient(request: NextRequest, response: NextResponse) {
-  return createServerClient(supabase.url, supabase.key, {
+  return createServerClient<Database>(supabase.url, supabase.key, {
     cookies: {
       getAll: () => request.cookies.getAll(),
       setAll: (cookiesToSet) => {

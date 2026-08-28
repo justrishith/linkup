@@ -315,6 +315,9 @@ export type Database = {
           idea_id: string | null
           location: string | null
           name: string
+          rarity: number
+          score_total: number | null
+          score_version: string | null
           starts_at: string | null
           status: string
           updated_at: string
@@ -331,6 +334,9 @@ export type Database = {
           idea_id?: string | null
           location?: string | null
           name: string
+          rarity?: number
+          score_total?: number | null
+          score_version?: string | null
           starts_at?: string | null
           status?: string
           updated_at?: string
@@ -347,6 +353,9 @@ export type Database = {
           idea_id?: string | null
           location?: string | null
           name?: string
+          rarity?: number
+          score_total?: number | null
+          score_version?: string | null
           starts_at?: string | null
           status?: string
           updated_at?: string
@@ -855,6 +864,34 @@ export type Database = {
     }
     Functions: {
       accept_group_invite: { Args: { p_code: string }; Returns: string }
+      confirm_plan: {
+        Args: { p_event_id: string; p_option_id: string }
+        Returns: {
+          cover_url: string | null
+          created_at: string
+          created_by: string
+          description: string | null
+          ends_at: string | null
+          group_id: string
+          id: string
+          idea_id: string | null
+          location: string | null
+          name: string
+          rarity: number
+          score_total: number | null
+          score_version: string | null
+          starts_at: string | null
+          status: string
+          updated_at: string
+          verified_at: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "events"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       create_group: {
         Args: { p_description?: string; p_name: string }
         Returns: {

@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.17"
+    PostgrestVersion: "14.5"
   }
   public: {
     Tables: {
@@ -476,6 +476,58 @@ export type Database = {
           },
         ]
       }
+      group_join_requests: {
+        Row: {
+          created_at: string
+          group_id: string
+          id: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          group_id: string
+          id?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          group_id?: string
+          id?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "group_join_requests_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "group_join_requests_reviewed_by_fkey"
+            columns: ["reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "group_join_requests_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       group_members: {
         Row: {
           group_id: string
@@ -913,6 +965,23 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      create_group_invite: {
+        Args: { p_group_id: string }
+        Returns: {
+          code: string
+          created_at: string
+          created_by: string
+          expires_at: string | null
+          group_id: string
+          id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "invites"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       create_plan: {
         Args: {
           p_description?: string
@@ -963,6 +1032,70 @@ export type Database = {
       is_group_member: {
         Args: { target_group: string; target_user?: string }
         Returns: boolean
+      }
+      list_discoverable_groups: {
+        Args: never
+        Returns: {
+          description: string
+          id: string
+          member_count: number
+          name: string
+        }[]
+      }
+      remove_group_member: {
+        Args: { p_group_id: string; p_user_id: string }
+        Returns: undefined
+      }
+      request_to_join_group: {
+        Args: { p_group_id: string }
+        Returns: {
+          created_at: string
+          group_id: string
+          id: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          user_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "group_join_requests"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      review_group_join_request: {
+        Args: { p_approve: boolean; p_request_id: string }
+        Returns: {
+          created_at: string
+          group_id: string
+          id: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          user_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "group_join_requests"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      set_group_member_role: {
+        Args: { p_group_id: string; p_role: string; p_user_id: string }
+        Returns: {
+          group_id: string
+          joined_at: string
+          role: string
+          user_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "group_members"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
     }
     Enums: {

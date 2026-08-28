@@ -1,50 +1,17 @@
 import { NextResponse } from 'next/server'
-import { cookies } from 'next/headers'
-import { supabase } from '@/lib/supabase'
 import { createSupabaseServerClient } from '@/lib/supabase-server'
 
-async function accessToken() {
-  return (await cookies()).get('linkup_access_token')?.value || null
-}
-
-async function getUser(token: string) {
-  const response = await fetch(`${supabase.url}/auth/v1/user`, {
-    headers: { apikey: supabase.key, Authorization: `Bearer ${token}` },
-    cache: 'no-store',
-  })
-  const data = await response.json().catch(() => null)
-  return response.ok && data?.id ? data : null
-}
-
-async function isMember(groupId: string, userId: string, token: string) {
-  const response = await fetch(`${supabase.url}/rest/v1/group_members?group_id=eq.${encodeURIComponent(groupId)}&user_id=eq.${encodeURIComponent(userId)}&select=role`, {
-    headers: { apikey: supabase.key, Authorization: `Bearer ${token}` },
-    cache: 'no-store',
-  })
-  const data = await response.json().catch(() => [])
-  return response.ok && Array.isArray(data) && data.length > 0
-}
-
 export async function POST(request: Request) {
-  const token = await accessToken()
-  if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  const user = await getUser(token)
+  const supabase = await createSupabaseServerClient()
+  const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Session expired' }, { status: 401 })
 
   const body = await request.json().catch(() => ({}))
   const groupId = String(body.groupId || '')
   if (!groupId) return NextResponse.json({ error: 'groupId is required' }, { status: 400 })
-  if (!(await isMember(groupId, user.id, token))) return NextResponse.json({ error: 'You are not a member of this link' }, { status: 403 })
-
-  const code = crypto.randomUUID().replaceAll('-', '').slice(0, 12).toUpperCase()
-  const response = await fetch(`${supabase.url}/rest/v1/invites`, {
-    method: 'POST',
-    headers: { apikey: supabase.key, Authorization: `Bearer ${token}`, 'Content-Type': 'application/json', Prefer: 'return=representation' },
-    body: JSON.stringify({ group_id: groupId, code, created_by: user.id, expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString() }),
-  })
-  const data = await response.json().catch(() => ({}))
-  if (!response.ok) return NextResponse.json({ error: data?.message || 'Unable to create invite' }, { status: response.status })
-  return NextResponse.json({ invite: Array.isArray(data) ? data[0] : data }, { status: 201 })
+  const { data, error } = await supabase.rpc('create_group_invite', { p_group_id: groupId })
+  if (error) return NextResponse.json({ error: error.message }, { status: 400 })
+  return NextResponse.json({ invite: data }, { status: 201 })
 }
 
 export async function GET(request: Request) {

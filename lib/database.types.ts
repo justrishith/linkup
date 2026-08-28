@@ -620,6 +620,7 @@ export type Database = {
           group_name: string
         }[]
       }
+      health_check: { Args: never; Returns: boolean }
       is_group_member: {
         Args: { target_group: string; target_user?: string }
         Returns: boolean

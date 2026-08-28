@@ -1,0 +1,13 @@
+-- Proves the Data API can execute a database query without touching user data.
+create or replace function public.health_check()
+returns boolean
+language sql
+stable
+security invoker
+set search_path = ''
+as $$
+  select true;
+$$;
+
+revoke all on function public.health_check() from public;
+grant execute on function public.health_check() to anon, authenticated;

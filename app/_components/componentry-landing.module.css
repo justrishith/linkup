@@ -1,0 +1,97 @@
+.stepGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 32px;
+}
+
+.stepTransition {
+  min-height: 202px;
+  border: 1px solid #e0d5c4;
+  border-radius: 22px;
+  background: #fffdf8;
+  box-shadow: 0 12px 28px rgba(51, 42, 31, 0.05);
+}
+
+.stepFace {
+  display: flex;
+  min-height: 202px;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 20px;
+}
+
+.stepFace small {
+  color: #367c6c;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+}
+
+.stepFace b {
+  display: block;
+  max-width: 12ch;
+  color: #302a25;
+  font-size: 22px;
+  letter-spacing: -0.05em;
+  line-height: 0.95;
+}
+
+.stepFace span {
+  display: block;
+  color: #746d62;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.stepBack {
+  background: #2f7566;
+  color: #fffaf1;
+}
+
+.stepBack small,
+.stepBack span {
+  color: rgba(255, 250, 241, 0.78);
+}
+
+.stepBack b {
+  color: #fffaf1;
+}
+
+.planLifecycle { margin-top: 15px; }
+
+.planHint {
+  position: relative;
+  z-index: 1;
+  margin: 7px 0 0;
+  color: #367c6c;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+@media (max-width: 720px) {
+  .stepGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .stepTransition,
+  .stepFace {
+    min-height: 154px;
+  }
+
+  .stepFace {
+    padding: 18px;
+  }
+
+  .stepFace b {
+    max-width: none;
+    font-size: 20px;
+  }
+
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stepTransition {
+    transition: none;
+  }
+}

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
+import { getSignedAvatarUrl } from "@/lib/profile-avatar"
 import { createSupabaseServerClient } from "@/lib/supabase-server"
 
 export async function GET(_: NextRequest, context: { params: Promise<{ id: string }> }) {
@@ -8,11 +9,16 @@ export async function GET(_: NextRequest, context: { params: Promise<{ id: strin
   const { id } = await context.params
   const { data, error } = await supabase
     .from("group_members")
-    .select("user_id,role,joined_at,profiles(display_name,avatar_url)")
+    .select("user_id,role,joined_at,profiles(display_name,avatar_url,avatar_path)")
     .eq("group_id", id)
     .order("joined_at", { ascending: true })
   if (error) return NextResponse.json({ error: error.message }, { status: 400 })
-  return NextResponse.json({ members: data })
+  const members = await Promise.all((data || []).map(async (member) => {
+    const profile = Array.isArray(member.profiles) ? member.profiles[0] : member.profiles
+    const avatarUrl = await getSignedAvatarUrl(supabase, profile?.avatar_path)
+    return { ...member, profiles: profile ? { ...profile, avatarUrl: avatarUrl || profile.avatar_url || null } : null }
+  }))
+  return NextResponse.json({ members })
 }
 
 export async function PUT(request: NextRequest, context: { params: Promise<{ id: string }> }) {

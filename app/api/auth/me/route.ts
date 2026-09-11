@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server"
+import { getSignedAvatarUrl } from "@/lib/profile-avatar"
 import { createSupabaseServerClient } from "@/lib/supabase-server"
 
 export async function GET() {
@@ -10,5 +11,6 @@ export async function GET() {
   const metadataName = user.user_metadata?.display_name || user.user_metadata?.full_name || user.user_metadata?.name
   const displayName = savedProfile?.display_name || metadataName || user.email?.split("@")[0] || "Account"
 
-  return NextResponse.json({ user, profile: { ...savedProfile, display_name: displayName } })
+  const avatarUrl = await getSignedAvatarUrl(supabase, savedProfile?.avatar_path)
+  return NextResponse.json({ user, profile: { ...savedProfile, display_name: displayName, avatarUrl: avatarUrl || savedProfile?.avatar_url || null } })
 }

@@ -1,7 +1,5 @@
 import type { Metadata } from 'next'
 import './globals.css'
-import '@ascentsparksoftware/react-calendar/styles.css'
-import 'react-tourlight/styles.css'
 
 export const metadata: Metadata = {
   title: 'Linkup · Get the group out of the chat',

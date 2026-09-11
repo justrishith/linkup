@@ -1,0 +1,33 @@
+.viewPanel { min-width: 0; }
+.memoryDeck { min-width: 0; }
+.memoryHeader, .availabilityMeta, .memoryControls, .showingUp > div:first-child { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.memoryHeader h2 { margin: 0; }
+.memoryHeader > span { color: #367c6c; font-size: 10px; font-weight: 900; letter-spacing: .08em; }
+.memoryStage { position: relative; display: grid; min-height: 132px; margin-top: 13px; overflow: hidden; place-items: center; border: 1px solid #e8dcc9; border-radius: 15px; background: #f1e4ce; isolation: isolate; }
+.memoryStage::before, .memoryStage::after { position: absolute; z-index: -1; width: 70%; height: 80%; border: 1px solid #e2d0b6; border-radius: 12px; background: #fffaf0; content: ""; }
+.memoryStage::before { transform: rotate(-7deg) translateX(-20%); }
+.memoryStage::after { transform: rotate(7deg) translateX(20%); }
+.memoryImage { object-fit: cover; }
+.memoryFallback { font-size: 42px; line-height: 1; transform: rotate(-5deg); }
+.memoryCaption { min-height: 1.5em; margin: 9px 0; overflow: hidden; color: #746d62; font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+.memoryControls button, .decisionHandoff, .inviteReceipt { border: 1px solid #dfd2bd; background: #fffaf1; color: #342d27; }
+.memoryControls button { display: inline-flex; min-height: 31px; align-items: center; gap: 3px; border-radius: 9px; padding: 6px 8px; font: inherit; font-size: 11px; font-weight: 800; }
+.availabilityMap { margin-top: 13px; border-top: 1px solid #eadfce; padding-top: 11px; }
+.availabilityMeta span, .showingUp span { color: #367c6c; font-size: 9px; font-weight: 900; letter-spacing: .13em; }
+.availabilityMeta b { color: #367c6c; font-size: 11px; }
+.availabilityTrack, .showingUpTrack { height: 7px; margin: 7px 0 9px; overflow: hidden; border-radius: 999px; background: #e9dfd0; }
+.availabilityTrack span, .showingUpTrack span { display: block; height: 100%; border-radius: inherit; background: #367c6c; transition: width 280ms cubic-bezier(.22,1,.36,1); }
+.memberVotes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 5px; margin: 0; padding: 0; list-style: none; }
+.memberVotes li { display: flex; min-width: 0; align-items: center; gap: 5px; border-radius: 8px; padding: 4px 5px; background: #faf5ec; color: #6d655a; font-size: 10px; }
+.memberVotes i { display: grid; width: 19px; height: 19px; flex: 0 0 auto; place-items: center; border-radius: 50%; background: #e6f0e8; color: #367c6c; font-size: 9px; font-style: normal; font-weight: 900; }
+.memberVotes span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.memberVotes b { margin-left: auto; font-size: 9px; }
+.memberVotes li[data-vote="yes"] b { color: #367c6c; }.memberVotes li[data-vote="no"] b { color: #9b5f46; }.memberVotes li[data-vote="waiting"] b { color: #8a7f70; }
+.decisionTicket { display: grid; gap: 5px; margin: 14px 0 2px; border-radius: 14px; padding: 13px; background: #2f7566; color: #fffaf1; }
+.decisionTicket span { display: inline-flex; align-items: center; gap: 5px; color: #d7eee5; font-size: 9px; font-weight: 900; letter-spacing: .13em; }.decisionTicket b { font-family: Georgia, "Times New Roman", serif; font-size: 17px; line-height: 1.1; }.decisionTicket small { color: #d7eee5; font-size: 11px; }
+.decisionHandoff { position: relative; display: grid; width: 100%; gap: 3px; margin: 12px 0 16px; overflow: hidden; border-radius: 15px; padding: 14px 44px 14px 15px; text-align: left; }.decisionHandoff::after { position: absolute; right: -14px; bottom: -18px; width: 66px; height: 66px; border-radius: 50%; background: #d8eee4; content: ""; }.decisionHandoff span { color: #367c6c; font-size: 9px; font-weight: 900; letter-spacing: .13em; }.decisionHandoff strong { color: #302a25; font-size: 14px; }.decisionHandoff small { color: #746d62; font-size: 11px; }.decisionHandoff svg { position: absolute; z-index: 1; right: 13px; top: 50%; color: #367c6c; transform: translateY(-50%); }
+.inviteReceipt { display: flex; align-items: flex-start; gap: 9px; margin: 0 0 14px; border-radius: 13px; padding: 12px; }.inviteReceipt svg { flex: 0 0 auto; color: #367c6c; }.inviteReceipt b, .inviteReceipt span { display: block; }.inviteReceipt b { color: #302a25; font-size: 12px; }.inviteReceipt span { margin-top: 2px; color: #746d62; font-size: 11px; line-height: 1.4; }
+.showingUp { margin: 18px 0; border: 1px solid #dfd2bd; border-radius: 16px; padding: 15px; background: #fffaf1; }.showingUp b { color: #302a25; font-family: Georgia, "Times New Roman", serif; font-size: 20px; }.showingUp details { color: #746d62; font-size: 12px; }.showingUp summary { cursor: pointer; color: #367c6c; font-weight: 800; }.showingUp p { margin: 7px 0 0; line-height: 1.45; }
+.memoryControls button:focus-visible, .decisionHandoff:focus-visible, .showingUp summary:focus-visible { outline: 3px solid rgba(54,124,108,.38); outline-offset: 2px; }.memoryControls button:active, .decisionHandoff:active { transform: scale(.98); }
+@media (max-width: 720px) { .memoryStage { min-height: 158px; }.memberVotes { grid-template-columns: 1fr; } }
+@media (prefers-reduced-motion: reduce) { .availabilityTrack span, .showingUpTrack span, .memoryControls button, .decisionHandoff { transition: none; } }

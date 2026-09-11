@@ -8,15 +8,38 @@ export async function GET(request: Request) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const albumId = new URL(request.url).searchParams.get('albumId')
-  let query = supabase.from('photos').select('*').order('created_at', { ascending: false })
+  const url = new URL(request.url)
+  const groupId = url.searchParams.get('groupId')
+  const albumId = url.searchParams.get('albumId')
+  if (!groupId) return NextResponse.json({ error: 'groupId is required' }, { status: 400 })
+
+  const { data: membership } = await supabase
+    .from('group_members')
+    .select('group_id')
+    .eq('group_id', groupId)
+    .eq('user_id', user.id)
+    .maybeSingle()
+  if (!membership) return NextResponse.json({ error: 'You are not in that Link' }, { status: 403 })
+
+  let query = supabase
+    .from('photos')
+    .select('*,albums!inner(group_id)')
+    .eq('albums.group_id', groupId)
+    .order('created_at', { ascending: false })
   if (albumId) query = query.eq('album_id', albumId)
   const { data, error } = await query
   if (error) return NextResponse.json({ error: error.message }, { status: 400 })
 
   const photos = await Promise.all((data || []).map(async (photo) => {
     const { data: signed } = await supabase.storage.from('photos').createSignedUrl(photo.storage_path, 60 * 60)
-    return { ...photo, signedUrl: signed?.signedUrl || null }
+    return {
+      id: photo.id,
+      album_id: photo.album_id,
+      storage_path: photo.storage_path,
+      caption: photo.caption,
+      created_at: photo.created_at,
+      signedUrl: signed?.signedUrl || null,
+    }
   }))
   return NextResponse.json({ photos })
 }

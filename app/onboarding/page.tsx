@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { useState } from 'react'
 import { ArrowRight, Check, Link2, Users, CalendarDays } from 'lucide-react'
-import BrandMark from '../_components/brand-mark'
+import AnimatedLinkLogo from '../_components/animated-link-logo'
 
 const steps = [
   { icon: Link2, title: 'Make a link', body: 'A link is one shared space for a group of people. Keep the plan, ideas, money, and photos there.' },
@@ -17,7 +17,7 @@ export default function OnboardingPage() {
   const Icon = current.icon
   return <main className="grid min-h-screen place-items-center overflow-hidden bg-[#fafaf8] px-5 py-10 text-[#111]">
     <div className="w-full max-w-2xl">
-      <Link href="/welcome" className="mx-auto flex w-fit items-center gap-3"><BrandMark size={44}/><span className="text-2xl font-black">linkup</span></Link>
+      <Link href="/welcome" className="mx-auto flex w-fit items-center gap-3"><AnimatedLinkLogo compact /><span className="text-2xl font-black">linkup</span></Link>
       <section className="brutal-card relative mt-8 overflow-hidden p-6 sm:p-10">
         <div className="absolute -right-16 -top-16 h-48 w-48 rounded-full bg-brand-blue/45 blur-3xl" />
         <div className="relative flex gap-2">{steps.map((_, index) => <div key={index} className={`h-2 flex-1 rounded-full border border-[#111] ${index <= step ? 'bg-brand-mint' : 'bg-white'}`} />)}</div>

@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import { useEffect, useState } from "react"
+import { Avatar } from "neobrutalism-ui-react"
 
 export default function ProfileButton() {
   const [name, setName] = useState("Account")
@@ -13,8 +14,8 @@ export default function ProfileButton() {
       .catch(() => undefined)
   }, [])
 
-  return <Link href="/account" className="ml-auto flex items-center gap-3 rounded-xl px-2 py-1 transition hover:bg-white" aria-label="Open account">
-    <div className="hidden text-right sm:block"><div className="text-xs font-bold">{name}</div><div className="text-[10px] text-zinc-500">Profile & settings</div></div>
-    <div className="grid h-9 w-9 place-items-center rounded-full border border-zinc-300 bg-brand-lemon text-xs font-black">{name.slice(0, 1).toUpperCase()}</div>
+  return <Link href="/account" className="ml-auto flex items-center gap-3 rounded-xl border-2 border-transparent px-2 py-1 transition hover:border-[#1a1a1a] hover:bg-white" aria-label="Open account">
+    <div className="hidden text-right sm:block"><div className="text-xs font-black">{name}</div><div className="text-[10px] font-bold text-zinc-600">Profile & settings</div></div>
+    <Avatar tone="yellow" aria-hidden="true">{name.slice(0, 1).toUpperCase()}</Avatar>
   </Link>
 }

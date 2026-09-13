@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { useEffect, useState } from "react"
 import { ArrowRight, Link2, LoaderCircle } from "lucide-react"
-import BrandMark from "../../_components/brand-mark"
+import AnimatedLinkLogo from "../../_components/animated-link-logo"
 
 type Invite = { group_id: string; code: string; expires_at?: string | null; groups?: { id: string; name: string; description?: string | null } | null }
 
@@ -41,7 +41,7 @@ export default function JoinPage({ params }: { params: Promise<{ code: string }>
 
   return <main className="min-h-screen bg-[#fafaf8] px-5 py-10 text-[#111] sm:px-8">
     <div className="mx-auto max-w-xl">
-      <Link href="/" className="inline-flex items-center gap-3"><BrandMark size={40}/><span className="text-xl font-black">linkup</span></Link>
+      <Link href="/" className="inline-flex items-center gap-3"><AnimatedLinkLogo compact /><span className="text-xl font-black">linkup</span></Link>
       <div className="brutal-card mt-12 overflow-hidden p-6 sm:p-9">
         <div className="grid h-12 w-12 place-items-center rounded-2xl border-2 border-[#1a1a1a] bg-brand-blue shadow-[3px_3px_0_#1a1a1a]"><Link2 size={22}/></div>
         {loading ? <div className="mt-8 flex items-center gap-2 text-sm font-bold"><LoaderCircle className="animate-spin" size={16}/> Loading invite…</div> : invite ? <>

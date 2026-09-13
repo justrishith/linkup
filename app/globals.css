@@ -1,5 +1,8 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@import "neobrutalism-ui-react/styles.css";
+
+@source "../node_modules/neobrutalism-ui-react/dist";
 
 @theme inline {
   --color-brand-blue: #93cdff;

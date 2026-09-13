@@ -6,6 +6,7 @@ import { useEffect, useMemo, useRef, useState } from "react"
 import { SpotlightProvider, SpotlightTour, useSpotlight } from "react-tourlight"
 import { ArrowDown, ArrowRight, CalendarDays, Camera, Check, CircleDollarSign, Compass, Link2, LockKeyhole, Menu, MousePointer2, Plus, Route, Sparkles, Users, X } from "lucide-react"
 import AnimatedLinkLogo from "./animated-link-logo"
+import BrandMark from "./brand-mark"
 import MagneticButton from "./magnetic-button"
 import { useLinkupMotion } from "./linkup-motion"
 import type { LinkupCalendarItem } from "./experience-calendar"
@@ -60,7 +61,7 @@ function AuthGate({ open, onClose }: { open: boolean; onClose: () => void }) {
     <div className="auth-gate-backdrop" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && onClose()}>
       <section className="auth-gate" role="dialog" aria-modal="true" aria-labelledby="auth-gate-title">
         <button ref={closeButton} type="button" className="modal-close" onClick={onClose} aria-label="Close sign in dialog"><X size={19} /></button>
-        <div className="auth-gate-mark"><AnimatedLinkLogo compact /></div>
+        <div className="auth-gate-mark"><BrandMark size={44} /></div>
         <div className="mini-kicker"><LockKeyhole size={13} /> your demo is safe</div>
         <h2 id="auth-gate-title">Ready to make it yours?</h2>
         <p>You can explore everything without an account. Sign up only when you want to save a Link and invite your people.</p>
@@ -148,7 +149,7 @@ function LinkupExperienceInner({ isAuthenticated }: { isAuthenticated: boolean }
     <main ref={page} className="linkup-experience">
       <div className="mesh mesh-one" aria-hidden="true" /><div className="mesh mesh-two" aria-hidden="true" /><div className="mesh mesh-three" aria-hidden="true" />
       <header className="experience-nav">
-        <Link href="/" className="experience-brand" aria-label="Linkup home"><AnimatedLinkLogo compact /><span>linkup</span></Link>
+        <Link href="/" className="experience-brand" aria-label="Linkup home"><BrandMark size={38} /><span>linkup</span></Link>
         <nav className={menuOpen ? "nav-links open" : "nav-links"} aria-label="Main navigation">
           <a href="#how-it-works">How it works</a><a href="#demo">Live demo</a><a href="#integrations">Integrations</a>
         </nav>
@@ -193,7 +194,7 @@ function LinkupExperienceInner({ isAuthenticated }: { isAuthenticated: boolean }
       <section id="demo" className="demo-section">
         <div className="section-heading centered" data-reveal><div className="mini-kicker"><span className="pulse-dot" /> no account needed</div><h2>Touch everything.<br />You can’t break it.</h2><p>This is a real interactive dashboard demo. Switch calendar views, move through dates, and learn the product before signing up.</p></div>
         <div className="demo-window" data-reveal>
-          <div className="demo-window-bar"><div className="window-dots"><i /><i /><i /></div><div className="demo-title"><AnimatedLinkLogo compact /><span>{isAuthenticated ? `${firstName}’s Link` : "Weekend people"}</span><em>{isAuthenticated ? "LIVE" : "DEMO"}</em></div><TourStarter loading={loading} /></div>
+          <div className="demo-window-bar"><div className="window-dots"><i /><i /><i /></div><div className="demo-title"><BrandMark size={30} /><span>{isAuthenticated ? `${firstName}’s Link` : "Weekend people"}</span><em>{isAuthenticated ? "LIVE" : "DEMO"}</em></div><TourStarter loading={loading} /></div>
           {loading ? <DashboardSkeleton /> : <div className="demo-content">
             <aside className="demo-sidebar"><div className="sidebar-label">THIS LINK</div><button className="active" type="button"><CalendarDays size={17} /> Plan</button><a href="#integrations"><CircleDollarSign size={17} /> Splitwise</a><a href="#integrations"><Camera size={17} /> Memories</a><div className="people-stack"><span>RK</span><span>JM</span><span>AL</span><button type="button" aria-label="Invite another friend">+</button></div></aside>
             <div className="demo-main"><div className="demo-welcome"><div><span className="mini-kicker">THE WHOLE PLAN</span><h3>{isAuthenticated ? `Hey ${firstName}, what’s next?` : "Big Bear weekend"}</h3></div><MagneticButton onClick={createLink}><Plus size={15} /> Create a Link</MagneticButton></div><ExperienceCalendar items={items} /></div>
@@ -210,7 +211,7 @@ function LinkupExperienceInner({ isAuthenticated }: { isAuthenticated: boolean }
       </section>
 
       <section className="final-cta" data-reveal><div className="final-orb" /><AnimatedLinkLogo /><div><span className="mini-kicker">THE GROUP CHAT CAN REST</span><h2>Make the plan real.</h2><p>Start with one Link. Invite the people. Pick the thing.</p></div><MagneticButton onClick={createLink}>Create your first Link <ArrowRight size={17} /></MagneticButton></section>
-      <footer><Link href="/" className="experience-brand"><AnimatedLinkLogo compact /><span>linkup</span></Link><p>Plans in. Chaos out.</p><span>© {new Date().getFullYear()} Linkup</span></footer>
+      <footer><Link href="/" className="experience-brand"><BrandMark size={38} /><span>linkup</span></Link><p>Plans in. Chaos out.</p><span>© {new Date().getFullYear()} Linkup</span></footer>
 
       <AuthGate open={authOpen} onClose={() => setAuthOpen(false)} />
       {/* Future gamification: verified trips will award points toward a global Linkup leaderboard. */}

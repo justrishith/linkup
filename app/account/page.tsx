@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { ArrowLeft, Link2, LogOut, UserRound } from 'lucide-react'
-import AnimatedLinkLogo from '../_components/animated-link-logo'
+import BrandMark from '../_components/brand-mark'
 
 export default function AccountPage() {
   const [profile, setProfile] = useState<{display_name?: string; avatar_url?: string | null} | null>(null)
@@ -26,7 +26,7 @@ export default function AccountPage() {
   return (
     <main className="min-h-screen bg-[#fafaf8] text-[#111]">
       <div className="mx-auto max-w-[1100px] px-4 py-8 sm:px-6 sm:py-12">
-        <div className="flex items-center justify-between gap-4"><Link href="/dashboard" className="inline-flex items-center gap-2 text-sm font-black text-zinc-500 hover:text-black"><ArrowLeft size={16}/> Back</Link><Link href="/dashboard" className="brand-lockup"><AnimatedLinkLogo compact /><span className="text-xl font-black tracking-tight">linkup</span></Link></div>
+        <div className="flex items-center justify-between gap-4"><Link href="/dashboard" className="inline-flex items-center gap-2 text-sm font-black text-zinc-500 hover:text-black"><ArrowLeft size={16}/> Back</Link><Link href="/dashboard" className="brand-lockup"><BrandMark size={36}/><span className="text-xl font-black tracking-tight">linkup</span></Link></div>
         <section className="mt-7 overflow-hidden rounded-[22px] border border-zinc-200 bg-white shadow-[4px_4px_0_rgba(26,26,26,.07)]">
           <div className="relative overflow-hidden bg-gradient-to-br from-brand-blue via-white to-brand-mint p-7 sm:p-10">
             <div className="absolute -right-10 -top-14 h-52 w-52 rounded-full bg-brand-lemon/80 blur-2xl" />

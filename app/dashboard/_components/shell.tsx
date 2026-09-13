@@ -4,7 +4,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { CalendarDays, Camera, Lightbulb, Users, WalletCards } from "lucide-react"
 import { Badge } from "neobrutalism-ui-react"
-import AnimatedLinkLogo from "../../_components/animated-link-logo"
+import BrandMark from "../../_components/brand-mark"
 import ProfileButton from "./profile-button"
 
 const links = [
@@ -32,7 +32,7 @@ function isActive(pathname: string, href: string) {
 export default function DashboardShell({ title, eyebrow, children }: { title?: string; eyebrow?: string; children: React.ReactNode }) {
   const pathname = usePathname()
   return <main className="linkup-app min-h-screen bg-[#fafaf8] text-[#111]">
-    <header className="sticky top-0 z-20 border-b-[3px] border-[#1a1a1a] bg-brand-lemon"><div className="mx-auto flex max-w-[1440px] items-center gap-3 px-4 py-2.5 sm:gap-4 sm:px-6"><Link href="/dashboard" className="mr-1 flex shrink-0 items-center gap-2 rounded-lg border-2 border-[#1a1a1a] bg-white py-1 pl-2 pr-3 shadow-[2px_2px_0_#1a1a1a]" aria-label="Linkup home"><AnimatedLinkLogo compact /><div className="text-xl font-black tracking-tight">linkup</div></Link><nav className="hidden flex-1 items-center gap-2 overflow-x-auto sm:flex" aria-label="Dashboard">{links.map(([href, label]) => {
+    <header className="sticky top-0 z-20 border-b-[3px] border-[#1a1a1a] bg-brand-lemon"><div className="mx-auto flex max-w-[1440px] items-center gap-3 px-4 py-2.5 sm:gap-4 sm:px-6"><Link href="/dashboard" className="mr-1 flex shrink-0 items-center gap-3" aria-label="Linkup home"><BrandMark size={38}/><div className="text-xl font-black tracking-tight">linkup</div></Link><nav className="hidden flex-1 items-center gap-2 overflow-x-auto sm:flex" aria-label="Dashboard">{links.map(([href, label]) => {
       const active = isActive(pathname, href)
       return <Link key={href} href={href} aria-current={active ? "page" : undefined} className={`rounded-lg border-2 px-3 py-2 text-sm font-black transition ${active ? "border-[#1a1a1a] bg-[#1a1a1a] text-white shadow-[2px_2px_0_rgba(26,26,26,.25)]" : "border-transparent text-zinc-700 hover:border-[#1a1a1a] hover:bg-white hover:text-black"}`}>{label}</Link>
     })}</nav><ProfileButton /></div></header>

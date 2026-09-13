@@ -1,9 +1,21 @@
 "use client"
 
 import Link from "next/link"
-import { FormEvent, useEffect, useState } from "react"
+import { FormEvent, useEffect, useRef, useState } from "react"
 import { ArrowRight, Check, Eye, EyeOff, KeyRound, MailCheck, Sparkles } from "lucide-react"
 import BrandMark from "../_components/brand-mark"
+
+declare global {
+  interface Window {
+    turnstile?: {
+      render: (container: HTMLElement, options: { sitekey: string; callback: (token: string) => void; ["expired-callback"]?: () => void; ["error-callback"]?: () => void }) => string
+      reset: (widgetId?: string) => void
+      remove: (widgetId?: string) => void
+    }
+  }
+}
+
+const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || ""
 
 type Mode = "signup" | "login"
 
@@ -16,8 +28,45 @@ export default function AuthPage() {
   const [busy, setBusy] = useState(false)
   const [message, setMessage] = useState("")
   const [error, setError] = useState("")
+  const [captchaToken, setCaptchaToken] = useState("")
+  const captchaBox = useRef<HTMLDivElement>(null)
+  const captchaWidget = useRef<string | undefined>(undefined)
 
   useEffect(() => setMode(new URLSearchParams(window.location.search).get("mode") === "signup" ? "signup" : "login"), [])
+
+  useEffect(() => {
+    if (!TURNSTILE_SITE_KEY || !captchaBox.current) return
+    let cancelled = false
+    function render() {
+      if (cancelled || !window.turnstile || !captchaBox.current || captchaWidget.current) return
+      captchaWidget.current = window.turnstile.render(captchaBox.current, {
+        sitekey: TURNSTILE_SITE_KEY,
+        callback: (token: string) => setCaptchaToken(token),
+        ["expired-callback"]: () => setCaptchaToken(""),
+        ["error-callback"]: () => setCaptchaToken(""),
+      })
+    }
+    if (window.turnstile) render()
+    else {
+      const script = document.querySelector('script[src*="challenges.cloudflare.com/turnstile"]') as HTMLScriptElement | null
+      const tag = script || document.createElement("script")
+      if (!script) {
+        tag.src = "https://challenges.cloudflare.com/turnstile/v0/api.js"
+        tag.async = true
+        tag.defer = true
+        document.head.appendChild(tag)
+      }
+      tag.addEventListener("load", render)
+      tag.addEventListener("error", render)
+    }
+    return () => {
+      cancelled = true
+      if (captchaWidget.current && window.turnstile) {
+        try { window.turnstile.remove(captchaWidget.current) } catch { /* widget already gone */ }
+        captchaWidget.current = undefined
+      }
+    }
+  }, [mode])
 
   function chooseMode(nextMode: Mode) {
     setMode(nextMode)
@@ -31,11 +80,16 @@ export default function AuthPage() {
     setBusy(true)
     setMessage("")
     setError("")
+    if (TURNSTILE_SITE_KEY && !captchaToken) {
+      setError("Please complete the human check below first.")
+      setBusy(false)
+      return
+    }
     try {
       const response = await fetch(`/api/auth/${mode}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(mode === "signup" ? { displayName: name, email, password } : { email, password }),
+        body: JSON.stringify(mode === "signup" ? { displayName: name, email, password, captchaToken } : { email, password, captchaToken }),
       })
       const data = await response.json().catch(() => ({}))
       if (!response.ok) throw new Error(data.error || "We could not complete that request.")
@@ -48,6 +102,8 @@ export default function AuthPage() {
       setError(reason instanceof Error ? reason.message : "We could not complete that request.")
     } finally {
       setBusy(false)
+      setCaptchaToken("")
+      try { window.turnstile?.reset(captchaWidget.current) } catch { /* widget already gone */ }
     }
   }
 
@@ -76,6 +132,9 @@ export default function AuthPage() {
             <label className={`relative block ${isSignUp ? "mt-4" : ""}`}><span className="text-xs font-black">Email</span><input value={email} onChange={event => setEmail(event.target.value)} type="email" required className="brutal-input mt-2 w-full rounded-lg px-4 py-3.5 text-sm outline-none focus:shadow-[3px_3px_0_#93cdff]" placeholder="you@example.com" autoComplete="email" /></label>
             <label className="relative mt-4 block"><span className="text-xs font-black">Password</span><div className="relative mt-2"><input value={password} onChange={event => setPassword(event.target.value)} type={showPassword ? "text" : "password"} required minLength={6} className="brutal-input w-full rounded-lg px-4 py-3.5 pr-12 text-sm outline-none focus:shadow-[3px_3px_0_#93cdff]" placeholder="At least 6 characters" autoComplete={isSignUp ? "new-password" : "current-password"} /><button type="button" onClick={() => setShowPassword(value => !value)} className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500" aria-label="Toggle password visibility">{showPassword ? <EyeOff size={16}/> : <Eye size={16}/>}</button></div></label>
             {isSignUp && <div className="relative mt-4 grid gap-2 rounded-xl border border-zinc-200 bg-brand-cream p-3 text-[11px] font-semibold text-zinc-600"><div className="flex items-center gap-2"><MailCheck size={14}/> We send one confirmation email.</div><div className="flex items-center gap-2"><Check size={14}/> Then you create your first Link.</div></div>}
+            {TURNSTILE_SITE_KEY
+              ? <div className="relative mt-4 flex justify-center"><div ref={captchaBox} /></div>
+              : <div className="relative mt-4 rounded-lg border-2 border-dashed border-zinc-300 px-3 py-3 text-[11px] font-bold text-zinc-500">Human check is not configured (missing site key), so signups will be rejected. Add NEXT_PUBLIC_TURNSTILE_SITE_KEY to continue.</div>}
             {error && <div role="alert" className="relative mt-4 rounded-lg border-2 border-[#111] bg-brand-coral px-3 py-3 text-xs font-bold">{error}</div>}
             {message && <div role="status" className="relative mt-4 rounded-lg border-2 border-[#111] bg-brand-mint px-3 py-3 text-xs font-bold">{message}</div>}
             <button disabled={busy} className="brutal-btn relative mt-5 w-full justify-center rounded-lg bg-brand-blue px-4 py-3.5 text-sm disabled:cursor-not-allowed disabled:opacity-60">{busy ? (isSignUp ? "Creating your account…" : "Logging you in…") : (isSignUp ? "Create account" : "Log in")}<ArrowRight size={16}/></button>

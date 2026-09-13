@@ -3,7 +3,7 @@ import { supabase } from '@/lib/supabase'
 import { setAuthCookies } from '@/lib/auth-cookies'
 
 export async function POST(request: NextRequest) {
-  const { email, password, displayName } = await request.json().catch(() => ({}))
+  const { email, password, displayName, captchaToken } = await request.json().catch(() => ({}))
   if (!email || !password) return NextResponse.json({ error: 'Email and password are required' }, { status: 400 })
 
   const redirectTo = new URL('/auth/confirmed', request.nextUrl.origin).toString()
@@ -14,6 +14,7 @@ export async function POST(request: NextRequest) {
       email,
       password,
       data: { display_name: displayName || email.split('@')[0] },
+      ...(captchaToken ? { gotrue_meta_security: { captcha_token: captchaToken } } : {}),
     }),
   })
 

@@ -4,7 +4,7 @@ import dynamic from "next/dynamic"
 import Link from "next/link"
 import { useEffect, useMemo, useRef, useState } from "react"
 import { SpotlightProvider, SpotlightTour, useSpotlight } from "react-tourlight"
-import { ArrowDown, ArrowRight, CalendarDays, Camera, Check, CircleDollarSign, Compass, Link2, LockKeyhole, Menu, MousePointer2, Plus, Route, Sparkles, Users, X } from "lucide-react"
+import { ArrowDown, ArrowRight, CalendarDays, Compass, Link2, LockKeyhole, Menu, MousePointer2, Plus, Route, Sparkles, Users, X } from "lucide-react"
 import AnimatedLinkLogo from "./animated-link-logo"
 import BrandMark from "./brand-mark"
 import MagneticButton from "./magnetic-button"
@@ -137,7 +137,7 @@ function LinkupExperienceInner({ isAuthenticated }: { isAuthenticated: boolean }
   const firstName = useMemo(() => profile.display_name?.trim().split(/\s+/)[0] || "friend", [profile.display_name])
 
   function createLink() {
-    if (isAuthenticated) window.location.assign("/dashboard/groups")
+    if (isAuthenticated) window.location.assign("/dashboard")
     else setAuthOpen(true)
   }
 
@@ -151,7 +151,7 @@ function LinkupExperienceInner({ isAuthenticated }: { isAuthenticated: boolean }
       <header className="experience-nav">
         <Link href="/" className="experience-brand" aria-label="Linkup home"><BrandMark size={38} /><span>linkup</span></Link>
         <nav className={menuOpen ? "nav-links open" : "nav-links"} aria-label="Main navigation">
-          <a href="#how-it-works">How it works</a><a href="#demo">Live demo</a><a href="#integrations">Integrations</a>
+          <a href="#how-it-works">How it works</a><a href="#demo">Live demo</a>
         </nav>
         <div className="nav-actions">
           {isAuthenticated ? <Link className="account-chip" href="/account"><span>{firstName.slice(0, 1).toUpperCase()}</span>{firstName}</Link> : <Link href="/auth?mode=login" className="nav-login">Log in</Link>}
@@ -196,17 +196,9 @@ function LinkupExperienceInner({ isAuthenticated }: { isAuthenticated: boolean }
         <div className="demo-window" data-reveal>
           <div className="demo-window-bar"><div className="window-dots"><i /><i /><i /></div><div className="demo-title"><BrandMark size={30} /><span>{isAuthenticated ? `${firstName}’s Link` : "Weekend people"}</span><em>{isAuthenticated ? "LIVE" : "DEMO"}</em></div><TourStarter loading={loading} /></div>
           {loading ? <DashboardSkeleton /> : <div className="demo-content">
-            <aside className="demo-sidebar"><div className="sidebar-label">THIS LINK</div><button className="active" type="button"><CalendarDays size={17} /> Plan</button><a href="#integrations"><CircleDollarSign size={17} /> Splitwise</a><a href="#integrations"><Camera size={17} /> Memories</a><div className="people-stack"><span>RK</span><span>JM</span><span>AL</span><button type="button" aria-label="Invite another friend">+</button></div></aside>
+            <aside className="demo-sidebar"><div className="sidebar-label">THIS LINK</div><button className="active" type="button"><CalendarDays size={17} /> Plan</button><div className="people-stack"><span>RK</span><span>JM</span><span>AL</span><button type="button" aria-label="Invite another friend">+</button></div></aside>
             <div className="demo-main"><div className="demo-welcome"><div><span className="mini-kicker">THE WHOLE PLAN</span><h3>{isAuthenticated ? `Hey ${firstName}, what’s next?` : "Big Bear weekend"}</h3></div><MagneticButton onClick={createLink}><Plus size={15} /> Create a Link</MagneticButton></div><ExperienceCalendar items={items} /></div>
           </div>}
-        </div>
-      </section>
-
-      <section id="integrations" className="integrations-section">
-        <div className="section-heading" data-reveal><div className="mini-kicker"><Check size={14} /> less app. more useful.</div><h2>Let the best apps<br />do the heavy lifting.</h2><p>Linkup keeps the plan clear and hands specialized jobs to tools your friends already trust.</p></div>
-        <div className="integration-grid">
-          <article className="integration-card splitwise-card" data-reveal data-tour="integrations"><div className="integration-logo splitwise-logo">S</div><span className="integration-status">PLACEHOLDER</span><h3>Expenses, without another ledger.</h3><p>Connect Splitwise to see who owes what. Linkup shows the summary; Splitwise handles the math.</p><MagneticButton tone="mint" onClick={() => !isAuthenticated && setAuthOpen(true)}>Connect Splitwise <ArrowRight size={16} /></MagneticButton></article>
-          <article className="integration-card photos-card" data-reveal><div className="integration-logo photos-logo"><i /><i /><i /><i /></div><span className="integration-status">PLACEHOLDER</span><h3>Memories stay where photos belong.</h3><p>Attach a shared Google Photos album and keep the best moments one tap from the plan.</p><MagneticButton tone="coral" onClick={() => !isAuthenticated && setAuthOpen(true)}>Connect Google Photos <ArrowRight size={16} /></MagneticButton></article>
         </div>
       </section>
 
@@ -225,7 +217,6 @@ export default function LinkupExperience({ isAuthenticated = false }: { isAuthen
       <SpotlightTour id="linkup-onboarding" steps={[
         { target: "[data-tour='calendar'] .calendar-toolbar", title: "Your plan lives here", content: "Events and ideas share one calendar, so the group can see both what is decided and what still needs a vote.", placement: "bottom" },
         { target: "[data-tour='views']", title: "Zoom in or out", content: "Use day for details, month for the whole plan, and year for the big picture.", placement: "bottom", interactive: true },
-        { target: "[data-tour='integrations'] .integration-logo", title: "Keep the specialist apps", content: "Splitwise handles expense math and Google Photos holds memories. Linkup simply keeps both connected to the plan.", placement: "bottom" },
       ]} />
       <LinkupExperienceInner isAuthenticated={isAuthenticated} />
     </SpotlightProvider>

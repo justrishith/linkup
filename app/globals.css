@@ -164,4 +164,30 @@ html{scroll-behavior:smooth}
 .tint-mint{background:#b8f0d4;border:2px solid #1a1a1a}
 .tint-peach{background:#ffd6c0;border:2px solid #1a1a1a}
 @media (max-width:1600px){.orbit-card{width:160px;padding:12px 14px;font-size:12px}.orbit-one{left:66%;top:17%}.orbit-two{top:45%}.orbit-three{left:58%;bottom:15%}.orbit-four{right:8%;bottom:6%}}
+
+/* HERO + NAV RESKIN — same content, brutal chrome. Connectors section deleted in TSX. */
+.linkup-experience{background:#fafaf8;color:#171326}
+.linkup-experience::before{background:linear-gradient(180deg,#fafaf8 0,#fdf6e3 34%,#fff 70%,#fafaf8 100%)}
+.mesh-one{background:rgba(147,205,255,.4)}
+.mesh-two{background:rgba(184,240,212,.42)}
+.mesh-three{background:rgba(255,214,192,.4)}
+.experience-nav{border:3px solid #1a1a1a;border-radius:18px;background:#fff;box-shadow:4px 4px 0 #1a1a1a;backdrop-filter:none}
+.nav-links a{color:#3d3a45}
+.nav-links a:hover{background:#fff3b0;color:#1a1a1a}
+.account-chip{background:#fff3b0;border:2px solid #1a1a1a}
+.account-chip span{background:#1a1a1a;color:#fff}
+.menu-toggle{background:#fff;border:2px solid #1a1a1a}
+.liquid-button,.liquid-anchor{border:2px solid #1a1a1a;box-shadow:3px 3px 0 #1a1a1a}
+.liquid-violet{background:#1a1a1a;color:#fff}
+.liquid-mint{background:#b8f0d4;color:#1a1a1a}
+.liquid-coral{background:#ffb8b8;color:#1a1a1a}
+.liquid-ghost{background:#fff;color:#1a1a1a;box-shadow:3px 3px 0 #1a1a1a}
+.hero-badge{background:#fff;border:2px solid #1a1a1a;box-shadow:2px 2px 0 #1a1a1a;color:#1a1a1a}
+.landing-hero h1 span{background:none;color:#1a1a1a;-webkit-text-fill-color:#1a1a1a}
+.landing-hero>p{color:#3d3a45}
+.floating-pill,.floating-card{background:#fff;border:2px solid #1a1a1a;box-shadow:4px 4px 0 #1a1a1a;backdrop-filter:none}
+.hero-link-orbit{background:#fff3b0;border:3px solid #1a1a1a;box-shadow:5px 5px 0 #1a1a1a;color:#1a1a1a;backdrop-filter:none}
+.trip-card .trip-image{background:#b8f0d4;border:2px solid #1a1a1a}
+.mini-kicker{color:#1a1a1a}
+.section-heading p{color:#3d3a45}
 @media (max-width:620px){.demo-window{border-radius:16px}.integration-card{border-radius:20px}.final-cta{border-radius:22px}.auth-gate{border-radius:20px}}

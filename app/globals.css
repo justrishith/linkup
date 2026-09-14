@@ -160,4 +160,8 @@ html{scroll-behavior:smooth}
 .auth-gate p{color:#3d3a45}
 .modal-close{background:#fff;border:2px solid #1a1a1a;color:#1a1a1a}
 .keep-exploring{color:#3d3a45}
+.tint-blue{background:#93cdff;border:2px solid #1a1a1a}
+.tint-mint{background:#b8f0d4;border:2px solid #1a1a1a}
+.tint-peach{background:#ffd6c0;border:2px solid #1a1a1a}
+@media (max-width:1600px){.orbit-card{width:160px;padding:12px 14px;font-size:12px}.orbit-one{left:66%;top:17%}.orbit-two{top:45%}.orbit-three{left:58%;bottom:15%}.orbit-four{right:8%;bottom:6%}}
 @media (max-width:620px){.demo-window{border-radius:16px}.integration-card{border-radius:20px}.final-cta{border-radius:22px}.auth-gate{border-radius:20px}}

@@ -121,3 +121,43 @@ html{scroll-behavior:smooth}
 @media (max-width:900px){.nav-links{display:none;position:absolute;left:0;right:0;top:80px;align-items:stretch;flex-direction:column;padding:12px;border:1px solid rgba(255,255,255,.8);border-radius:22px;background:rgba(255,255,255,.92);box-shadow:0 20px 50px rgba(45,30,95,.15);backdrop-filter:blur(20px)}.nav-links.open{display:flex}.nav-login{display:none}.menu-toggle{display:grid}.landing-hero{min-height:900px}.story-cards{grid-template-columns:1fr}.story-card{min-height:260px}.story-card h3{margin-top:54px}.demo-content{grid-template-columns:1fr}.demo-sidebar{display:none}.calendar-toolbar{grid-template-columns:1fr auto}.view-toggle{grid-column:1/-1;width:max-content}.integration-grid{grid-template-columns:1fr}.final-cta{grid-template-columns:1fr;text-align:center}.final-cta>svg{margin:0 auto}.final-cta .liquid-button{justify-self:center}.demo-skeleton .skeleton-grid{margin-left:0}}
 @media (max-width:620px){.experience-nav{top:9px;width:calc(100% - 18px);height:64px;border-radius:20px;padding-left:12px}.experience-brand{font-size:19px}.experience-brand svg{width:52px}.nav-cta{display:none}.landing-hero{min-height:830px;padding:145px 18px 60px}.landing-hero h1{font-size:clamp(58px,20vw,88px);line-height:.82}.landing-hero>p{font-size:15px}.hero-actions{width:100%;flex-direction:column}.hero-actions .liquid-button{width:100%}.hero-visual{height:270px}.pill-people{left:0;top:15%}.pill-vote{right:0;bottom:12%}.trip-card{display:none}.hero-link-orbit{width:170px;height:125px}.how-section,.integrations-section{width:calc(100% - 28px);padding:80px 0}.demo-section{padding-top:90px}.section-heading h2{font-size:46px}.demo-window{border-radius:26px}.demo-window-bar{padding:9px 12px}.window-dots{display:none}.demo-title{position:static;transform:none}.tour-button{margin-left:auto;padding:8px!important;font-size:0}.tour-button svg{margin:0}.demo-main{padding:13px}.demo-welcome{align-items:flex-start}.demo-welcome h3{font-size:21px}.demo-welcome .liquid-button{min-height:40px;padding:9px;font-size:0}.demo-welcome .liquid-button svg{margin:0}.calendar-toolbar{display:flex;align-items:flex-start;flex-direction:column}.calendar-controls{position:absolute;right:30px}.calendar-surface{height:420px}.calendar-legend{flex-wrap:wrap}.calendar-hint{display:none!important}.integration-card{min-height:390px;padding:28px}.integration-card h3{margin-top:58px;font-size:29px}.final-cta{width:calc(100% - 28px);padding:34px 24px;border-radius:35px}.final-cta h2{font-size:42px}.linkup-experience footer{width:calc(100% - 28px);align-items:flex-start;flex-direction:column;gap:12px}.auth-gate{padding:34px 24px}.auth-gate h2{font-size:34px}}
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.mesh,.pulse-dot{animation:none}.liquid-button,.liquid-anchor,.story-card{transform:none!important}}
+
+/* BRUTALISM UNIFICATION — one loud language for landing demo + app. Overrides the violet-glass rules above. */
+.demo-window{border:3px solid #1a1a1a;border-radius:20px;background:#fffdf4;box-shadow:8px 8px 0 #1a1a1a;backdrop-filter:none}
+.demo-window-bar{border-bottom:3px solid #1a1a1a;background:#fff3b0}
+.demo-title em{background:#1a1a1a;color:#fff}
+.demo-sidebar{border-right:3px solid #1a1a1a;background:#fff}
+.demo-sidebar>a,.demo-sidebar>button{border:2px solid transparent;border-radius:12px;color:#3d3a45}
+.demo-sidebar .active{background:#1a1a1a;color:#fff;box-shadow:3px 3px 0 rgba(26,26,26,.22)}
+.people-stack span,.people-stack button{border:3px solid #1a1a1a}
+.people-stack button{background:#fff3b0;color:#1a1a1a}
+.experience-calendar{border:3px solid #1a1a1a;border-radius:18px;background:#fff;box-shadow:6px 6px 0 rgba(26,26,26,.85)}
+.calendar-toolbar h3{color:#111}
+.calendar-controls,.view-toggle{background:#fff;border:2px solid #1a1a1a;border-radius:12px}
+.calendar-controls button,.view-toggle button{color:#3d3a45}
+.view-toggle button.active{background:#1a1a1a;color:#fff;box-shadow:2px 2px 0 rgba(26,26,26,.25)}
+.calendar-surface{border-top:3px solid #1a1a1a}
+.calendar-legend{border-top:2px solid #1a1a1a;color:#3d3a45}
+.story-card{border:3px solid #1a1a1a;border-radius:22px;box-shadow:6px 6px 0 #1a1a1a}
+.story-card:hover{border-radius:22px;transform:translate(-2px,-2px)}
+.story-violet{background:#93cdff}
+.story-mint{background:#b8f0d4}
+.story-coral{background:#ffd6c0}
+.story-number{color:rgba(26,26,26,.22)}
+.story-icon{border:2px solid #1a1a1a;background:#fff;box-shadow:2px 2px 0 #1a1a1a}
+.story-card p{color:#3d3a45}
+.integration-card{border:3px solid #1a1a1a;border-radius:24px;box-shadow:6px 6px 0 #1a1a1a}
+.splitwise-card{background:#b8f0d4}
+.photos-card{background:#ffd6c0}
+.integration-logo{border:2px solid #1a1a1a;background:#fff;box-shadow:3px 3px 0 #1a1a1a}
+.integration-status{border:2px solid #1a1a1a;background:#fff3b0;color:#1a1a1a}
+.integration-card p{color:#3d3a45}
+.final-cta{border:3px solid #1a1a1a;border-radius:28px;background:#fff3b0;box-shadow:8px 8px 0 #1a1a1a}
+.final-cta p{color:#3d3a45}
+.final-orb{display:none}
+.auth-gate{border:3px solid #1a1a1a;border-radius:24px;background:#fffdf4;box-shadow:8px 8px 0 rgba(26,26,26,.85)}
+.auth-gate-mark{background:#fff3b0;border:2px solid #1a1a1a;box-shadow:3px 3px 0 #1a1a1a}
+.auth-gate p{color:#3d3a45}
+.modal-close{background:#fff;border:2px solid #1a1a1a;color:#1a1a1a}
+.keep-exploring{color:#3d3a45}
+@media (max-width:620px){.demo-window{border-radius:16px}.integration-card{border-radius:20px}.final-cta{border-radius:22px}.auth-gate{border-radius:20px}}

@@ -31,9 +31,16 @@ const nav: { id: CrewView; label: string; icon: typeof Link2 }[] = [
 ]
 const localProfile: Profile = { id: "local-rishith", email: "local-preview@linkup.test", display_name: "Rishith" }
 const localGroup: Group = { group_id: "local-weekend", role: "owner", member_count: 4, groups: { id: "local-weekend", name: "Rishith’s Weekend", description: "Made for local UI testing", visibility: "private" } }
-const localPlans: Plan[] = [{ id: "local-boba", name: "Late-night boba run", location: "Cha Time", status: "planning", event_date_options: [
-  { id: "fri", starts_at: "2026-09-04T20:30:00", event_date_votes: [{ user_id: "local-rishith", vote: "like" }, { user_id: "maya", vote: "like" }] },
-  { id: "sat", starts_at: "2026-09-05T20:30:00", event_date_votes: [{ user_id: "avi", vote: "like" }] },
+const nextPreviewSlot = (weekday: number, hour: number, minute: number) => {
+  const date = new Date()
+  date.setHours(hour, minute, 0, 0)
+  const offset = (weekday - date.getDay() + 7) % 7 || 7
+  date.setDate(date.getDate() + offset)
+  return date.toISOString()
+}
+const makeLocalPlans = (): Plan[] => [{ id: "local-boba", name: "Late-night boba run", location: "Cha Time", status: "planning", event_date_options: [
+  { id: "fri", starts_at: nextPreviewSlot(5, 20, 30), event_date_votes: [{ user_id: "local-rishith", vote: "like" }, { user_id: "maya", vote: "like" }] },
+  { id: "sat", starts_at: nextPreviewSlot(6, 20, 30), event_date_votes: [{ user_id: "avi", vote: "like" }] },
 ]}]
 const localMessages: ChatMessage[] = [
   { id: "local-1", body: "who’s actually free friday?", created_at: "2026-09-02T18:00:00.000Z", user_id: "maya", profiles: { display_name: "Maya" } },
@@ -68,7 +75,7 @@ export default function FullLinkupApp({ preview = false, previewScenario = "read
   const [profile, setProfile] = useState<Profile | null>(() => preview && previewScenario !== "loading" && previewScenario !== "error" ? localProfile : null)
   const [groups, setGroups] = useState<Group[]>(() => readyPreview ? [localGroup] : [])
   const [groupId, setGroupId] = useState(() => readyPreview ? localGroup.group_id : "")
-  const [plans, setPlans] = useState<Plan[]>(() => readyPreview ? localPlans : [])
+  const [plans, setPlans] = useState<Plan[]>(() => readyPreview ? makeLocalPlans() : [])
   const [messages, setMessages] = useState<ChatMessage[]>(() => readyPreview ? localMessages : [])
   const [scores, setScores] = useState<Score[]>(() => readyPreview ? localScores : [])
   const [photos, setPhotos] = useState<Photo[]>([])

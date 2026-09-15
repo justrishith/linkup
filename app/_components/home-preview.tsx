@@ -10,8 +10,8 @@ import componentry from "./componentry-landing.module.css"
 type Choice = "friday" | "saturday"
 
 const choices: Record<Choice, { label: string; detail: string; count: string }> = {
-  friday: { label: "Fri, Sep 4", detail: "8:30 PM · Cha Time", count: "4 of 4 free" },
-  saturday: { label: "Sat, Sep 5", detail: "9:00 PM · Boba Guys", count: "2 of 4 free" },
+  friday: { label: "Friday evening", detail: "8:30 PM · Cha Time", count: "4 of 4 free" },
+  saturday: { label: "Saturday night", detail: "9:00 PM · Boba Guys", count: "2 of 4 free" },
 }
 
 export default function HomePreview() {

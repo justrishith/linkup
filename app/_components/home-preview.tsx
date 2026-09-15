@@ -24,8 +24,10 @@ export default function HomePreview() {
     <div className={styles.status}><span className={styles.liveDot} />{confirmed ? "PLAN CONFIRMED" : "YOUR MOVE"}</div>
     <h2>{confirmed ? <>Boba is<br/><em>happening.</em></> : <>Late-night<br/>boba run</>}</h2>
     <p className={styles.details}>{confirmed ? "Friday · 8:30 PM · Cha Time" : "Pick the time that works for you."}</p>
-    <PlanLifecycle status={confirmed ? "confirmed" : "choosing"} className={componentry.planLifecycle} />
-    <p className={componentry.planHint}>{confirmed ? "Friday has the deciding vote." : "Two clear choices. Your crew decides together."}</p>
+    <div className={styles.lifecycleArea}>
+      <PlanLifecycle status={confirmed ? "confirmed" : "choosing"} className={componentry.planLifecycle} />
+      <p className={componentry.planHint}>{confirmed ? "Friday has the deciding vote." : "Two clear choices. Your crew decides together."}</p>
+    </div>
     <div className={styles.votes} aria-label="Choose a time">
       {(Object.keys(choices) as Choice[]).map((key) => {
         const item = choices[key]

@@ -60,12 +60,13 @@ export function AvailabilityGrid({ members, votes }: { members: CrewMember[]; vo
  * source's hover-only reveal, and each rendered card is a distinct real photo. */
 export function MemoryStack({ photos, onAdd }: { photos: CrewMemory[]; onAdd: () => void }) {
   const [index, setIndex] = useState(0)
+  const reducedMotion = useReducedMotion()
   const total = photos.length
   const active = total ? photos[index % total] : null
   const canMove = total > 1
   const move = (amount: number) => setIndex((current) => (current + amount + total) % total)
   return <article className={styles.memoryStack}><div className={styles.memoryStackHead}><span>MEMORIES</span><b>{total ? `${index % total + 1} / ${total}` : "0 / 0"}</b></div>
-    {active?.signedUrl ? <div className={styles.memoryStackStage}><i aria-hidden="true"/><AnimatePresence mode="wait" initial={false}><motion.div key={active.id} className={styles.memoryCard} initial={{ rotate: -4, x: 14, clipPath: "inset(0 100% 0 0 round 18px)" }} animate={{ rotate: 0, x: 0, clipPath: "inset(0 round 18px)" }} exit={{ rotate: 4, x: -14, clipPath: "inset(0 0 0 100% round 18px)" }} transition={{ duration: .22, ease: [0.22, 1, 0.36, 1] }}><Image src={active.signedUrl} alt={active.caption || "Link memory"} fill sizes="(max-width: 720px) 100vw, 460px" unoptimized /></motion.div></AnimatePresence></div> : <button type="button" className={styles.memoryEmpty} onClick={onAdd}><ImagePlus size={20}/><b>Add the first real memory</b><span>No placeholders. No repeats.</span></button>}
+    {active?.signedUrl ? <div className={styles.memoryStackStage}><i aria-hidden="true"/><AnimatePresence mode="wait" initial={false}><motion.div key={active.id} className={styles.memoryCard} initial={reducedMotion ? false : { rotate: -4, x: 14, clipPath: "inset(0 100% 0 0 round 18px)" }} animate={{ rotate: 0, x: 0, clipPath: "inset(0 round 18px)" }} exit={reducedMotion ? undefined : { rotate: 4, x: -14, clipPath: "inset(0 0 0 100% round 18px)" }} transition={{ duration: reducedMotion ? 0 : .22, ease: [0.22, 1, 0.36, 1] }}><Image src={active.signedUrl} alt={active.caption || "Link memory"} fill sizes="(max-width: 720px) 100vw, 460px" unoptimized /></motion.div></AnimatePresence></div> : <button type="button" className={styles.memoryEmpty} onClick={onAdd}><ImagePlus size={20}/><b>Add the first real memory</b><span>No placeholders. No repeats.</span></button>}
     {active && <><p>{active.caption || "A Link memory"}</p><div className={styles.memoryStackControls}><button type="button" disabled={!canMove} onClick={() => move(-1)}><ChevronLeft size={15}/> Previous</button><button type="button" disabled={!canMove} onClick={() => move(1)}>Next <ChevronRight size={15}/></button></div></>}
   </article>
 }
@@ -73,5 +74,5 @@ export function MemoryStack({ photos, onAdd }: { photos: CrewMemory[]; onAdd: ()
 /** Componentry Hover Transition, constrained to an explicit click/focus plan
  * handoff so it communicates a real next step instead of decorative motion. */
 export function DecisionHandoff({ title, detail, onOpen }: { title: string; detail: string; onOpen: () => void }) {
-  return <HoverTransition className={styles.decisionHandoff} effect="wipe" direction="right" duration={.22} label={`Open plan: ${title}`} onClick={onOpen} defaultComponent={<div className={styles.decisionFace}><span>PLAN CONTEXT</span><b>{title}</b><small>{detail}</small><ChevronRight size={18}/></div>} hoverComponent={<div className={styles.decisionFace}><span>OPEN THE PLAN</span><b>See the choices.</b><small>Vote or make the call in one place.</small><ChevronRight size={18}/></div>} />
+  return <HoverTransition className={styles.decisionHandoff} effect="wipe" direction="right" duration={.22} label={`Open plan: ${title}`} description={`${detail} Activate this card to open the plan.`} onActivate={onOpen} defaultComponent={<div className={styles.decisionFace}><span>PLAN CONTEXT</span><b>{title}</b><small>{detail}</small><ChevronRight size={18}/></div>} hoverComponent={<div className={styles.decisionFace}><span>OPEN THE PLAN</span><b>See the choices.</b><small>Vote or make the call in one place.</small><ChevronRight size={18}/></div>} />
 }

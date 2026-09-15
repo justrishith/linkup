@@ -1,6 +1,6 @@
 import FullLinkupApp, { type PreviewScenario } from "./full-linkup-app"
 
-const previewScenarios: PreviewScenario[] = ["ready", "empty", "loading", "error"]
+const previewScenarios: PreviewScenario[] = ["ready", "empty", "loading", "error", "partial-error"]
 
 export default async function DashboardPage({
   searchParams,

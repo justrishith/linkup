@@ -17,6 +17,7 @@ export default function CrewStepCards() {
       effect="wipe"
       direction={number === "02" ? "bottom" : "right"}
       label={`${title}: focus or tap to reveal the next detail`}
+      description={`${copy} ${revealTitle}: ${revealCopy}`}
       defaultComponent={<div className={styles.stepFace}><small>{number}</small><b>{title}</b><span>{copy}</span></div>}
       hoverComponent={<div className={`${styles.stepFace} ${styles.stepBack}`}><small>THE NEXT SMALL MOVE</small><b>{revealTitle}</b><span>{revealCopy}</span></div>}
     />)}

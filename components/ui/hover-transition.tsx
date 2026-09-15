@@ -41,6 +41,8 @@ export interface HoverTransitionProps extends Omit<
   duration?: number;
   easing?: string;
   label?: string;
+  description?: string;
+  onActivate?: () => void;
 }
 
 type Vector = { x: number; y: number };
@@ -158,18 +160,22 @@ export function HoverTransition({
   duration = 0.72,
   easing = "cubic-bezier(0.22, 1, 0.36, 1)",
   label = "Interactive hover transition",
+  description,
+  onActivate,
   className,
   onMouseEnter,
   onMouseLeave,
   onFocus,
   onBlur,
   onClick,
+  onKeyDown,
   onPointerMove,
   onPointerLeave,
   tabIndex,
   ...props
 }: HoverTransitionProps) {
   const rootRef = React.useRef<HTMLDivElement>(null);
+  const descriptionId = React.useId();
   const [active, setActive] = React.useState(false);
   const reducedMotion = usePrefersReducedMotion();
   const vector = directionVectors[direction];
@@ -498,6 +504,7 @@ export function HoverTransition({
       ref={rootRef}
       role="button"
       aria-label={label}
+      aria-describedby={description ? descriptionId : undefined}
       aria-expanded={active}
       tabIndex={tabIndex ?? 0}
       data-active={active ? "true" : "false"}
@@ -522,11 +529,22 @@ export function HoverTransition({
           setActive(false);
         onBlur?.(event);
       }}
+      onKeyDown={(event) => {
+        onKeyDown?.(event);
+        if (event.defaultPrevented) return;
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          setActive(true);
+          onActivate?.();
+        }
+      }}
       onClick={(event) => {
         setActive(true);
+        onActivate?.();
         onClick?.(event);
       }}
     >
+      {description && <span id={descriptionId} className="sr-only">{description}</span>}
       <div
         className="relative h-full w-full"
         style={{

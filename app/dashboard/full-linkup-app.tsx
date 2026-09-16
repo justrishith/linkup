@@ -25,6 +25,7 @@ type Profile = { id: string; email?: string | null; display_name?: string | null
 type PlanSlot = { date: string; time: string }
 type ResourceKey = "plans" | "chat" | "scores" | "photos" | "members"
 type ResourceErrors = Partial<Record<ResourceKey, string>>
+type PreviewGroupData = { plans: Plan[]; messages: ChatMessage[]; scores: Score[]; photos: Photo[]; members: Member[] }
 
 const nav: { id: CrewView; label: string; icon: typeof Link2 }[] = [
   { id: "home", label: "Home", icon: Link2 }, { id: "plan", label: "Plan", icon: CalendarDays }, { id: "chat", label: "Chat", icon: MessageCircle }, { id: "links", label: "Links", icon: Users }, { id: "profile", label: "You", icon: CircleUserRound },
@@ -50,6 +51,13 @@ const localScores: Score[] = [{ userId: "local-rishith", displayName: "Rishith",
 const localMembers: Member[] = [
   { user_id: "local-rishith", role: "owner", profiles: { display_name: "Rishith" } }, { user_id: "maya", role: "member", profiles: { display_name: "Maya" } }, { user_id: "avi", role: "member", profiles: { display_name: "Avi" } }, { user_id: "noah", role: "member", profiles: { display_name: "Noah" } },
 ]
+const makeEmptyPreviewGroupData = (): PreviewGroupData => ({
+  plans: [], messages: [], scores: [], photos: [],
+  members: [{ user_id: localProfile.id, role: "owner", profiles: { display_name: localProfile.display_name } }],
+})
+const makeReadyPreviewGroupData = (): PreviewGroupData => ({
+  plans: makeLocalPlans(), messages: [...localMessages], scores: [...localScores], photos: [], members: [...localMembers],
+})
 
 class RequestError extends Error {
   constructor(message: string, readonly status: number) { super(message) }
@@ -70,16 +78,19 @@ const memberForGrid = (members: Member[]): CrewMember[] => members.map((member) 
 
 export default function FullLinkupApp({ preview = false, previewScenario = "ready", initialView = "home", framed = false }: { preview?: boolean; previewScenario?: PreviewScenario; initialView?: CrewView; framed?: boolean }) {
   const photoInputRef = useRef<HTMLInputElement>(null)
+  const selectedGroupIdRef = useRef("")
+  const groupLoadSequenceRef = useRef(0)
+  const previewGroupsRef = useRef<Record<string, PreviewGroupData>>({ [localGroup.group_id]: makeReadyPreviewGroupData() })
   const readyPreview = preview && (previewScenario === "ready" || previewScenario === "partial-error")
   const [view, setView] = useState<CrewView>(initialView)
   const [profile, setProfile] = useState<Profile | null>(() => preview && previewScenario !== "loading" && previewScenario !== "error" ? localProfile : null)
   const [groups, setGroups] = useState<Group[]>(() => readyPreview ? [localGroup] : [])
   const [groupId, setGroupId] = useState(() => readyPreview ? localGroup.group_id : "")
   const [plans, setPlans] = useState<Plan[]>(() => readyPreview ? makeLocalPlans() : [])
-  const [messages, setMessages] = useState<ChatMessage[]>(() => readyPreview ? localMessages : [])
-  const [scores, setScores] = useState<Score[]>(() => readyPreview ? localScores : [])
+  const [messages, setMessages] = useState<ChatMessage[]>(() => readyPreview ? [...localMessages] : [])
+  const [scores, setScores] = useState<Score[]>(() => readyPreview ? [...localScores] : [])
   const [photos, setPhotos] = useState<Photo[]>([])
-  const [members, setMembers] = useState<Member[]>(() => readyPreview ? localMembers : [])
+  const [members, setMembers] = useState<Member[]>(() => readyPreview ? [...localMembers] : [])
   const [loading, setLoading] = useState(() => preview ? previewScenario === "loading" : true)
   const [busy, setBusy] = useState(false)
   const [notice, setNotice] = useState("")
@@ -118,6 +129,7 @@ export default function FullLinkupApp({ preview = false, previewScenario = "read
   const isPlanNameInvalid = Boolean(visiblePlanIssue && !planName.trim())
 
   const loadGroup = useCallback(async (id: string) => {
+    const loadSequence = ++groupLoadSequenceRef.current
     const [planResult, chatResult, scoreResult, photoResult, memberResult] = await Promise.allSettled([
       request<{ plans: Plan[] }>(`/api/calendar?groupId=${encodeURIComponent(id)}`), request<{ messages: ChatMessage[] }>(`/api/chat?groupId=${encodeURIComponent(id)}`), request<{ leaderboard: Score[] }>(`/api/leaderboard?groupId=${encodeURIComponent(id)}`), request<{ photos: Photo[] }>(`/api/photos?groupId=${encodeURIComponent(id)}`), request<{ members: Member[] }>(`/api/groups/${id}/members`),
     ])
@@ -125,6 +137,7 @@ export default function FullLinkupApp({ preview = false, previewScenario = "read
       window.location.assign("/auth?next=/dashboard")
       return
     }
+    if (loadSequence !== groupLoadSequenceRef.current || selectedGroupIdRef.current !== id) return
     const nextErrors: ResourceErrors = {}
     if (planResult.status === "fulfilled") setPlans(planResult.value.plans || [])
     else nextErrors.plans = `Plans could not refresh. ${errorMessage(planResult.reason)}`
@@ -143,7 +156,8 @@ export default function FullLinkupApp({ preview = false, previewScenario = "read
     try {
       const [me, linkData] = await Promise.all([request<{ user: Profile; profile: Profile }>("/api/auth/me"), request<{ groups: Group[] }>("/api/groups")])
       setProfile({ ...me.user, ...me.profile }); setGroups(linkData.groups || [])
-      const first = groupId || linkData.groups?.[0]?.group_id || ""
+      const first = selectedGroupIdRef.current || linkData.groups?.[0]?.group_id || ""
+      selectedGroupIdRef.current = first
       setGroupId(first); if (first) await loadGroup(first)
     } catch (cause) {
       if (cause instanceof RequestError && cause.status === 401) {
@@ -152,7 +166,7 @@ export default function FullLinkupApp({ preview = false, previewScenario = "read
       }
       setError(errorMessage(cause))
     } finally { setLoading(false) }
-  }, [groupId, loadGroup])
+  }, [loadGroup])
   useEffect(() => {
     if (preview) return
     const timer = window.setTimeout(() => void load(), 0)
@@ -160,13 +174,31 @@ export default function FullLinkupApp({ preview = false, previewScenario = "read
   }, [load, preview])
   useEffect(() => {
     if (preview || !groupId || !profile) return
-    const timer = window.setInterval(() => void loadGroup(groupId), 15_000)
-    return () => window.clearInterval(timer)
+    const refreshWhenVisible = () => {
+      if (document.visibilityState === "visible") void loadGroup(groupId)
+    }
+    const timer = window.setInterval(refreshWhenVisible, 15_000)
+    document.addEventListener("visibilitychange", refreshWhenVisible)
+    return () => {
+      window.clearInterval(timer)
+      document.removeEventListener("visibilitychange", refreshWhenVisible)
+    }
   }, [groupId, loadGroup, preview, profile])
 
   function report(nextNotice: string) { setNotice(nextNotice); setError(""); window.setTimeout(() => setNotice(""), 3500) }
   function fail(cause: unknown) { setError(errorMessage(cause)); setNotice("") }
-  function chooseGroup(id: string) { setGroupId(id); if (!preview) void loadGroup(id) }
+  function chooseGroup(id: string) {
+    selectedGroupIdRef.current = id
+    if (preview) {
+      if (groupId) previewGroupsRef.current[groupId] = { plans, messages, scores, photos, members }
+      const next = previewGroupsRef.current[id] || makeEmptyPreviewGroupData()
+      previewGroupsRef.current[id] = next
+      setGroupId(id); setPlans(next.plans); setMessages(next.messages); setScores(next.scores); setPhotos(next.photos); setMembers(next.members)
+      return
+    }
+    setGroupId(id)
+    void loadGroup(id)
+  }
   function openLink(id: string) { chooseGroup(id); setView("home") }
   async function createLink(event: FormEvent) {
     event.preventDefault()
@@ -183,10 +215,13 @@ export default function FullLinkupApp({ preview = false, previewScenario = "read
     }
     if (preview) {
       const id = `local-${Date.now()}`; const group: Group = { group_id: id, role: "owner", member_count: 1, groups: { id, name: linkName.trim(), description: linkDescription.trim(), visibility: "private" } }
-      setGroups((items) => [...items, group]); setGroupId(id); setMembers([{ user_id: localProfile.id, role: "owner", profiles: { display_name: localProfile.display_name } }]); setPlans([]); setMessages([]); setScores([]); setPhotos([]); setLinkName(""); setLinkDescription(""); setLinkIssue(""); setShowCreateLink(false); report("Local preview Link created."); return
+      if (groupId) previewGroupsRef.current[groupId] = { plans, messages, scores, photos, members }
+      const next = makeEmptyPreviewGroupData()
+      previewGroupsRef.current[id] = next
+      setGroups((items) => [...items, group]); selectedGroupIdRef.current = id; setGroupId(id); setPlans(next.plans); setMessages(next.messages); setScores(next.scores); setPhotos(next.photos); setMembers(next.members); setLinkName(""); setLinkDescription(""); setLinkIssue(""); setShowCreateLink(false); report("Local preview Link created."); return
     }
     setBusy(true)
-    try { const result = await request<{ group: { id: string } }>("/api/groups", { method: "POST", body: JSON.stringify({ name: linkName, description: linkDescription }) }); setLinkName(""); setLinkDescription(""); setLinkIssue(""); setShowCreateLink(false); setGroupId(result.group.id); await load(); report("Your Link is ready. Invite your people next.") } catch (cause) { setLinkIssue(errorMessage(cause)); linkNameRef.current?.focus() } finally { setBusy(false) }
+    try { const result = await request<{ group: { id: string } }>("/api/groups", { method: "POST", body: JSON.stringify({ name: linkName, description: linkDescription }) }); setLinkName(""); setLinkDescription(""); setLinkIssue(""); setShowCreateLink(false); selectedGroupIdRef.current = result.group.id; setGroupId(result.group.id); await load(); report("Your Link is ready. Invite your people next.") } catch (cause) { setLinkIssue(errorMessage(cause)); linkNameRef.current?.focus() } finally { setBusy(false) }
   }
   async function createPlan(event: FormEvent) {
     event.preventDefault()

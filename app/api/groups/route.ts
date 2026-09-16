@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { validateLinkName } from '@/lib/server-name-policy'
 import { createSupabaseServerClient } from '@/lib/supabase-server'
 
 export async function GET() {
@@ -12,7 +13,8 @@ export async function GET() {
     .order('joined_at', { ascending: false })
   if (error) return NextResponse.json({ error: error.message }, { status: 400 })
 
-  const groups = await Promise.all((data || []).map(async (row) => {
+  const uniqueMemberships = [...new Map((data || []).map((row) => [row.group_id, row])).values()]
+  const groups = await Promise.all(uniqueMemberships.map(async (row) => {
     const { count } = await supabase
       .from('group_members')
       .select('*', { count: 'exact', head: true })
@@ -29,11 +31,13 @@ export async function POST(request: Request) {
   if (!user) return NextResponse.json({ error: 'Session expired' }, { status: 401 })
 
   const body = await request.json().catch(() => ({}))
-  const name = typeof body.name === 'string' ? body.name.trim() : ''
+  const nameValidation = validateLinkName(body.name)
   const description = typeof body.description === 'string' ? body.description.trim() : ''
   const parentGroupId = typeof body.parentGroupId === 'string' ? body.parentGroupId : ''
   const visibility = body.visibility === 'discoverable' ? 'discoverable' : 'private'
-  if (!name) return NextResponse.json({ error: 'Group name is required' }, { status: 400 })
+  if ('error' in nameValidation) return NextResponse.json({ error: nameValidation.error }, { status: 400 })
+  if (description.length > 280) return NextResponse.json({ error: 'Keep the Link description to 280 characters or fewer.' }, { status: 400 })
+  const name = nameValidation.value
 
   const result = parentGroupId
     ? await supabase.rpc('create_sub_group', {

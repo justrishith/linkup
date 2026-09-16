@@ -11,16 +11,60 @@ import styles from "./crew-components.module.css"
 
 export type CrewMember = { id: string; name: string; avatarUrl?: string | null }
 export type CrewVote = { user_id: string; vote: "like" | "dislike" | "undecided" }
-export type CrewMemory = { id: string; caption?: string | null; signedUrl?: string | null }
+export type CrewMemory = { id: string; caption?: string | null; signedUrl?: string | null; albumName?: string | null; eventName?: string | null }
+export type PlanTimeSlot = { date: string; time: string }
 
-/** Adapted from the 21st.dev React Aria date-picker pattern: a labelled,
- * keyboard-operable calendar whose visual layer is restyled for Crew. */
-export function CrewDatePicker({ value, onChange }: { value: string; onChange: (value: string) => void }) {
+/** Adapted from the 21st.dev React Aria date-picker pattern. One calendar
+ * edits the selected flight-ticket-style option so the creation flow does not
+ * stack a full calendar for every possible time. */
+export function PlanTimePicker({
+  slots,
+  activeIndex,
+  onActiveChange,
+  onSlotsChange,
+}: {
+  slots: PlanTimeSlot[]
+  activeIndex: number
+  onActiveChange: (index: number) => void
+  onSlotsChange: (slots: PlanTimeSlot[]) => void
+}) {
   const minimumDate = useMemo(() => today(getLocalTimeZone()), [])
-  return <Calendar<CalendarDate> className={styles.datePicker} aria-label="Choose a plan date" value={value ? parseDate(value) : null} minValue={minimumDate} onChange={(date) => onChange(date.toString())}>
-    <div className={styles.calendarHead}><AriaButton slot="previous" aria-label="Previous month"><ChevronLeft size={16}/></AriaButton><Heading/><AriaButton slot="next" aria-label="Next month"><ChevronRight size={16}/></AriaButton></div>
-    <CalendarGrid className={styles.calendarGrid}><CalendarGridHeader>{(day) => <CalendarHeaderCell>{day}</CalendarHeaderCell>}</CalendarGridHeader><CalendarGridBody>{(date) => <CalendarCell className={styles.calendarCell} date={date}/>}</CalendarGridBody></CalendarGrid>
-  </Calendar>
+  const selectedIndex = Math.min(Math.max(activeIndex, 0), Math.max(slots.length - 1, 0))
+  const selected = slots[selectedIndex] || { date: "", time: "18:00" }
+  const updateSelected = (next: Partial<PlanTimeSlot>) => onSlotsChange(slots.map((slot, index) => index === selectedIndex ? { ...slot, ...next } : slot))
+  const dateLabel = (date: string) => date ? new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric" }).format(new Date(`${date}T12:00:00`)) : "Choose a day"
+  const addOption = () => {
+    if (slots.length >= 4) return
+    const next = [...slots, { date: "", time: selected.time || "18:00" }]
+    onSlotsChange(next)
+    onActiveChange(next.length - 1)
+  }
+  const removeOption = (index: number) => {
+    if (slots.length <= 2) return
+    const next = slots.filter((_, itemIndex) => itemIndex !== index)
+    onSlotsChange(next)
+    onActiveChange(Math.max(0, Math.min(selectedIndex, next.length - 1)))
+  }
+
+  return <section className={styles.planTimePicker} aria-label="Plan time choices">
+    <div className={styles.optionRail} role="list" aria-label="Possible plan times">
+      {slots.map((slot, index) => <div key={index} className={styles.optionTicket} data-active={index === selectedIndex || undefined}>
+        <button type="button" className={styles.optionTicketSelect} onClick={() => onActiveChange(index)} aria-pressed={index === selectedIndex}>
+          <span>OPTION {index + 1}</span><b>{dateLabel(slot.date)}</b><small>{slot.time ? new Intl.DateTimeFormat(undefined, { hour: "numeric", minute: "2-digit" }).format(new Date(`2026-01-01T${slot.time}:00`)) : "Choose a time"}</small>
+        </button>
+        {slots.length > 2 && <button type="button" className={styles.optionTicketRemove} onClick={() => removeOption(index)} aria-label={`Remove option ${index + 1}`}>×</button>}
+      </div>)}
+      {slots.length < 4 && <button type="button" className={styles.addOption} onClick={addOption}><span>+</span> Add time</button>}
+    </div>
+    <div className={styles.calendarAndTime}>
+      <Calendar<CalendarDate> className={styles.datePicker} aria-label={`Choose a date for option ${selectedIndex + 1}`} value={selected.date ? parseDate(selected.date) : null} minValue={minimumDate} onChange={(date) => updateSelected({ date: date.toString() })}>
+        <div className={styles.calendarHead}><AriaButton slot="previous" aria-label="Previous month"><ChevronLeft size={16}/></AriaButton><Heading/><AriaButton slot="next" aria-label="Next month"><ChevronRight size={16}/></AriaButton></div>
+        <CalendarGrid className={styles.calendarGrid}><CalendarGridHeader>{(day) => <CalendarHeaderCell>{day}</CalendarHeaderCell>}</CalendarGridHeader><CalendarGridBody>{(date) => <CalendarCell className={styles.calendarCell} date={date}/>}</CalendarGridBody></CalendarGrid>
+      </Calendar>
+      <TimeWheel value={selected.time} onChange={(time) => updateSelected({ time })}/>
+    </div>
+    <p className={styles.planTimeHint}>Choose a ticket, then choose its day and time. Add up to four options for the crew.</p>
+  </section>
 }
 
 /** Adapted from Componentry's Wheel Carousel: motion and explicit keyboard
@@ -67,7 +111,7 @@ export function MemoryStack({ photos, onAdd }: { photos: CrewMemory[]; onAdd: ()
   const move = (amount: number) => setIndex((current) => (current + amount + total) % total)
   return <article className={styles.memoryStack}><div className={styles.memoryStackHead}><span>MEMORIES</span><b>{total ? `${index % total + 1} / ${total}` : "0 / 0"}</b></div>
     {active?.signedUrl ? <div className={styles.memoryStackStage}><i aria-hidden="true"/><AnimatePresence mode="wait" initial={false}><motion.div key={active.id} className={styles.memoryCard} initial={reducedMotion ? false : { rotate: -4, x: 14, clipPath: "inset(0 100% 0 0 round 18px)" }} animate={{ rotate: 0, x: 0, clipPath: "inset(0 round 18px)" }} exit={reducedMotion ? undefined : { rotate: 4, x: -14, clipPath: "inset(0 0 0 100% round 18px)" }} transition={{ duration: reducedMotion ? 0 : .22, ease: [0.22, 1, 0.36, 1] }}><Image src={active.signedUrl} alt={active.caption || "Link memory"} fill sizes="(max-width: 720px) 100vw, 460px" unoptimized /></motion.div></AnimatePresence></div> : <button type="button" className={styles.memoryEmpty} onClick={onAdd}><ImagePlus size={20}/><b>Add the first real memory</b><span>No placeholders. No repeats.</span></button>}
-    {active && <><p>{active.caption || "A Link memory"}</p><div className={styles.memoryStackControls}><button type="button" disabled={!canMove} onClick={() => move(-1)}><ChevronLeft size={15}/> Previous</button><button type="button" disabled={!canMove} onClick={() => move(1)}>Next <ChevronRight size={15}/></button></div></>}
+    {active && <><p>{active.eventName ? `${active.eventName} · ${active.caption || "Event memory"}` : active.caption || active.albumName || "A Link memory"}</p><div className={styles.memoryStackControls}><button type="button" disabled={!canMove} onClick={() => move(-1)}><ChevronLeft size={15}/> Previous</button><button type="button" disabled={!canMove} onClick={() => move(1)}>Next <ChevronRight size={15}/></button></div></>}
   </article>
 }
 

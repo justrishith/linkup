@@ -23,7 +23,7 @@ export async function GET(request: Request) {
 
   let query = supabase
     .from('photos')
-    .select('*,albums!inner(group_id)')
+    .select('*,albums!inner(group_id,name,event_id,events(name))')
     .eq('albums.group_id', groupId)
     .order('created_at', { ascending: false })
   if (albumId) query = query.eq('album_id', albumId)
@@ -32,12 +32,17 @@ export async function GET(request: Request) {
 
   const photos = await Promise.all((data || []).map(async (photo) => {
     const { data: signed } = await supabase.storage.from('photos').createSignedUrl(photo.storage_path, 60 * 60)
+    const album = Array.isArray(photo.albums) ? photo.albums[0] : photo.albums
+    const event = album?.events && (Array.isArray(album.events) ? album.events[0] : album.events)
     return {
       id: photo.id,
       album_id: photo.album_id,
       storage_path: photo.storage_path,
       caption: photo.caption,
       created_at: photo.created_at,
+      albumName: album?.name || null,
+      eventId: album?.event_id || null,
+      eventName: event?.name || null,
       signedUrl: signed?.signedUrl || null,
     }
   }))
@@ -53,7 +58,7 @@ export async function POST(request: Request) {
   const file = form.get('file')
   const groupId = String(form.get('groupId') || '')
   const albumIdValue = form.get('albumId')
-  const albumName = String(form.get('albumName') || 'Shared photos').trim()
+  const requestedEventId = String(form.get('eventId') || '').trim()
   const caption = String(form.get('caption') || '').trim()
   if (!(file instanceof File) || !groupId) return NextResponse.json({ error: 'A photo and group are required' }, { status: 400 })
   if (!allowedImageTypes.has(file.type)) return NextResponse.json({ error: 'Use a JPEG, PNG, or WebP image' }, { status: 400 })
@@ -67,20 +72,37 @@ export async function POST(request: Request) {
     .maybeSingle()
   if (!membership) return NextResponse.json({ error: 'You are not in that Link' }, { status: 403 })
 
+  if (caption.length > 140) return NextResponse.json({ error: 'Keep the memory caption to 140 characters or fewer' }, { status: 400 })
+
+  let eventName = ''
+  if (requestedEventId) {
+    const { data: event } = await supabase
+      .from('events')
+      .select('id,name,status')
+      .eq('id', requestedEventId)
+      .eq('group_id', groupId)
+      .maybeSingle()
+    if (!event || event.status !== 'confirmed') return NextResponse.json({ error: 'Choose a confirmed plan from this Link.' }, { status: 400 })
+    eventName = event.name
+  }
+
+  const albumName = requestedEventId ? `Memories from ${eventName}` : 'Link memories'
   let albumId = albumIdValue ? String(albumIdValue) : ''
   if (!albumId) {
-    const { data: existing } = await supabase
+    let existingQuery = supabase
       .from('albums')
       .select('id')
       .eq('group_id', groupId)
-      .eq('name', albumName || 'Shared photos')
-      .maybeSingle()
+    existingQuery = requestedEventId
+      ? existingQuery.eq('event_id', requestedEventId)
+      : existingQuery.is('event_id', null).eq('name', albumName)
+    const { data: existing } = await existingQuery.maybeSingle()
     albumId = existing?.id || ''
   }
   if (!albumId) {
     const { data: album, error } = await supabase
       .from('albums')
-      .insert({ group_id: groupId, name: albumName || 'Shared photos', created_by: user.id })
+      .insert({ group_id: groupId, name: albumName, event_id: requestedEventId || null, created_by: user.id })
       .select('id')
       .single()
     if (error || !album) return NextResponse.json({ error: error?.message || 'Unable to create album' }, { status: 400 })

@@ -17,3 +17,17 @@
 
 /* React Aria renders a semantic table; keep it a table so days have equal tracks. */
 .calendarHead h2{margin:0;font-size:13px}.calendarGrid{display:table;width:100%;border-collapse:separate;border-spacing:3px;text-align:center}.calendarGrid thead,.calendarGrid tbody,.calendarGrid tr{display:table-row-group}.calendarGrid tr{display:table-row}.calendarGrid th,.calendarGrid td{display:table-cell;padding:0;vertical-align:middle}.calendarGrid th{width:14.285%;color:#8a7f70;font-size:9px;font-weight:900}.calendarGrid .calendarCell button{display:grid;width:100%;min-width:0;place-items:center;aspect-ratio:1;border:0;border-radius:9px;background:transparent;color:#302922;font:inherit;font-size:11px;font-weight:800;cursor:pointer}.calendarGrid .calendarCell button:hover,.calendarGrid .calendarCell button:focus-visible{outline:none;background:#e7f1ea;color:#397868}.calendarGrid .calendarCell[data-selected] button{background:#397868;color:#fffaf1}.calendarGrid .calendarCell[data-disabled] button{opacity:.3;cursor:not-allowed}.calendarGrid .calendarCell button:focus-visible{outline:3px solid rgba(57,120,104,.35);outline-offset:2px}
+
+.planTimePicker { display:grid; gap:12px; }
+.optionRail { display:flex; gap:8px; overflow-x:auto; padding:2px; scroll-snap-type:x proximity; }
+.optionTicket { position:relative; min-width:132px; flex:1 0 132px; overflow:hidden; border:1px solid #dfd2bd; border-radius:13px; background:#fffdf8; scroll-snap-align:start; }
+.optionTicket[data-active] { border-color:#397868; box-shadow:0 0 0 2px #dceee4; }
+.optionTicketSelect { display:grid; width:100%; gap:3px; border:0; background:transparent; padding:11px 28px 11px 11px; color:#302922; text-align:left; cursor:pointer; }
+.optionTicketSelect span { color:#397868; font-size:9px; font-weight:900; letter-spacing:.12em; }
+.optionTicketSelect b { font-size:13px; }.optionTicketSelect small { color:#766d63; font-size:10px; }
+.optionTicketRemove { position:absolute; top:7px; right:7px; display:grid; width:20px; height:20px; place-items:center; border:0; border-radius:7px; background:#f4ebe0; color:#9b4030; font:inherit; cursor:pointer; }
+.addOption { min-width:108px; flex:0 0 108px; border:1px dashed #bcae9c; border-radius:13px; background:#fbf4e9; color:#397868; font:inherit; font-size:10px; font-weight:900; cursor:pointer; }.addOption span { font-size:15px; }
+.calendarAndTime { display:grid; grid-template-columns:minmax(0,1fr) 152px; gap:10px; align-items:stretch; }
+.calendarAndTime .timeWheel { min-height:100%; align-content:center; }
+.planTimeHint { margin:0; color:#766d63; font-size:10px; line-height:1.45; }
+@media (max-width:540px) { .calendarAndTime { grid-template-columns:1fr; }.calendarAndTime .timeWheel { grid-template-columns:auto 1fr; }.calendarAndTime .wheelHead { grid-column:1 / -1; }.optionRail { margin-inline:-2px; }.optionTicket { flex-basis:126px; } }

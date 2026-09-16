@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server"
 import { getSignedAvatarUrl } from "@/lib/profile-avatar"
+import { validateDisplayName } from "@/lib/server-name-policy"
 import { createSupabaseServerClient } from "@/lib/supabase-server"
-
-const displayNameError = "Use a display name between 2 and 48 characters."
 
 export async function GET() {
   const supabase = await createSupabaseServerClient()
@@ -20,8 +19,9 @@ export async function PATCH(request: Request) {
   if (!user) return NextResponse.json({ error: "Session expired" }, { status: 401 })
 
   const body = await request.json().catch(() => ({}))
-  const displayName = typeof body.displayName === "string" ? body.displayName.trim().replace(/\s+/g, " ") : ""
-  if (displayName.length < 2 || displayName.length > 48) return NextResponse.json({ error: displayNameError }, { status: 400 })
+  const validation = validateDisplayName(body.displayName)
+  if ("error" in validation) return NextResponse.json({ error: validation.error }, { status: 400 })
+  const displayName = validation.value
 
   const { data: profile, error } = await supabase
     .from("profiles")
